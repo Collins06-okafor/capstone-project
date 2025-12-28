@@ -1,0 +1,725 @@
+Cinema Ticket Booking System 
+Capstone Project Documentation 
+ 
+Executive Summary 
+The Cinema Ticket Booking System represents a comprehensive full-stack web application designed to modernize the movie ticket purchasing experience. This capstone project demonstrates advanced software engineering principles, secure payment processing, and user-centric design methodologies. The system provides seamless ticket booking capabilities for customers while offering robust management tools for cinema administrators. 
+ 
+Project Information 
+Project Title: 
+Cinema Ticket Booking System - Advanced Web Application 
+Academic Institution: 
+Final international university 
+Software Engineering Department Academic Year: 2024-2025 
+Project Team Structure 
+Role Team Member Student ID Primary Responsibilities Frontend Lead Perpetual Dumebi Isaiah Asaka 2103060171 UI/UX Design, React Components, State Management Frontend 
+Developer Chukwubuikem Collins Okafor 2103060156 Component Development, Responsive Design Frontend 
+Developer Anwar Awal 2003060015 User Interface, Frontend Integration Frontend 
+Developer Missira Abba Boukar 2103060182 Component Testing, UI Optimization Backend Lead Sardorbek Ergashev 1903060017 API Architecture, Server Configuration Backend 
+Developer Driss Bouadoud 2103060019 Authentication, Payment Integration Database 
+Architect Ahmad Alzaim 2103060150 Database Design, Data Modeling, Query Optimization Project Supervisor 
+Hüseyin Lört 
+Software Engineering
+ 
+Technology Stack & Architecture 
+Frontend Technologies 
+? Framework: React.js 18.2.0 
+? Styling: Tailwind CSS 3.3.0 
+? State Management: Redux Toolkit / Context API 
+? Routing: React Router v6 
+? HTTP Client: Axios 
+? Form Handling: Formik with Yup validation 
+? UI Components: React Bootstrap / Material-UI 
+? Testing: Jest, React Testing Library 
+? Build Tool: Vite / Create React App 
+Backend Technologies 
+? Runtime: Node.js 18.x 
+? Framework: Express.js 4.18.x 
+? Authentication: JWT (JSON Web Tokens) 
+? Password Hashing: bcrypt 
+? Validation: Joi / express-validator 
+? File Upload: Multer 
+? Email Service: Nodemailer 
+? API Documentation: Swagger/OpenAPI 
+Database & Storage 
+? Primary Database: Posgress
+
+DevOps & Deployment 
+? Version Control: Git with GitHub 
+? CI/CD: GitHub Actions 
+? Cloud Platform: AWS / Heroku / DigitalOcean 
+ 
+Project Objectives & Success Criteria 
+Primary Objectives 
+1. User Experience Excellence o 	Develop an intuitive, responsive movie ticket booking interface o 	Implement real-time seat selection with visual feedback 
+	o 	Create seamless user journey from browsing to ticket confirmation 
+2. Security & Reliability o 	Implement robust user authentication with role-based access control o 	Integrate secure payment processing with PCI DSS compliance o 	Ensure data protection and privacy compliance (GDPR considerations) 
+3. Administrative Efficiency o 	Create comprehensive admin dashboard for cinema management o 	Implement real-time analytics and reporting capabilities o 	Provide efficient user and booking management tools 
+4. Technical Excellence o 	Demonstrate modern full-stack development practices o 	Implement scalable architecture patterns o 	Achieve 95%+ test coverage across all modules 
+Success Criteria 
+? Performance: Page load times < 2 seconds, 99.5% uptime 
+? Security: Zero critical vulnerabilities in security audit 
+? Usability: User satisfaction score > 4.0/5.0 in testing 
+? Functionality: 100% of core features operational 
+? Code Quality: Maintainability index > 80 
+ 
+System Architecture 
+High-Level Architecture 
+???????????????????    ???????????????????    ??????????????????? 
+?   Frontend      ?    ?    Backend      ?    ?    Database     ? 
+?   (React.js)    ??????   (Express.js)  ??????    (MySQL)      ? 
+?                 ?    ?                 ?    ?                 ? 
+???????????????????    ???????????????????    ??????????????????? 
+         ?                       ?                       ? 
+         ?                       ?                       ? 
+         ?                       ?                       ? 
+???????????????????    ???????????????????    ??????????????????? 
+?  ? 
+?                 ? 
+???????????????????    ???????????????????    ??????????????????? 
+Frontend Architecture 
+? Component Hierarchy: Atomic design principles 
+? State Management: Centralized store with Redux/Context 
+? Routing Strategy: Protected routes with authentication guards 
+? Performance Optimization: Code splitting, lazy loading, memoization 
+Backend Architecture 
+? API Design: RESTful endpoints following OpenAPI 3.0 specifications 
+? Middleware Stack: CORS, helmet, rate limiting, body parsing 
+? Error Handling: Centralized error handling with custom error classes 
+? Logging: Structured logging with Winston and log levels 
+Database Architecture 
+? Normalization: 3NF compliance for data integrity 
+? Indexing Strategy: Optimized indexes for frequent queries 
+? Relationships: Foreign key constraints and referential integrity 
+? Backup Strategy: Daily automated backups with point-in-time recovery 
+ 
+Detailed Feature Specifications 
+1. User Authentication & Authorization 
+Responsible Team: Driss Bouadoud, Sardor [Surname], Ahmad Alzaim Features: 
+? Multi-factor Authentication: Email 
+? Password Policy: Minimum 8 characters with complexity requirements 
+? Session Management: JWT with refresh token rotation 
+? Role-Based Access Control: Customer, Staff, Admin Security Measures: 
+? Password hashing with bcrypt (12 rounds) 
+? Account lockout after 5 failed attempts 
+? CSRF protection with tokens 
+? Rate limiting on authentication endpoints 
+2. Movie Catalog Management 
+Responsible Team: Perpetual Dumebi Isaiah Asaka, Missira Abba Boukar, Ahmad Alzaim Features: 
+   ? Dynamic Movie Listings: Real-time updates from external APIs 
+   ? Advanced Search & Filtering: Genre, rating, language, showtime 
+   ? Movie Details: Synopsis, cast, trailer integration, reviews 
+   ? Content Management: Admin interface for movie CRUD operations Technical Implementation: 
+   ? Image optimization and lazy loading 
+   ? SEO-friendly URLs and meta tags 
+   ? Responsive image galleries 
+   ? Integration with movie databases (TMDB API) 
+3. Interactive Seat Selection System 
+Responsible Team: Chukwubuikem Collins Okafor, Anwar Awal Features: 
+   ? Real-time Seat Availability: WebSocket integration for live updates 
+   ? Visual Seat Map: Interactive theater layout with seat categories 
+   ? Accessibility Features: Screen reader support, keyboard navigation 
+   ? Mobile Optimization: Touch-friendly interface for mobile devices Technical Implementation: 
+   ? Canvas/SVG-based seat rendering 
+   ? WebSocket connection for real-time updates 
+   ? State synchronization across multiple users 
+   ? Timeout handling for seat reservations 
+4. Booking & Reservation System 
+Responsible Team: All team members (collaborative feature) Features: 
+? Multi-step Booking Process: Movie selection ? Seats ? Payment ? Confirmation 
+? Booking Management: View, modify, cancel reservations 
+? E-ticket Generation: PDF tickets with QR codes 
+? Booking History: Complete transaction records 
+Business Logic: 
+? Seat hold timeout (10 minutes) 
+? Dynamic pricing based on seat type and timing 
+? Group booking discounts 
+? Loyalty program integration 
+5. Local Options: Regional payment methods 
+Security Features: 
+? PCI DSS Level 1 compliance 
+? Tokenization of payment data 
+? 3D Secure authentication 
+5. Administrative Dashboard 
+Responsible Team: Perpetual Dumebi Isaiah Asaka, Ahmad Alzaim Analytics & Reporting: 
+   ? Revenue Analytics: Daily, weekly, monthly reports 
+   ? Occupancy Rates: Theater utilization statistics 
+   ? Customer Insights: Demographics and behavior patterns 
+   ? Performance Metrics: System usage and response times Management Features: 
+   ? User account management with bulk operations 
+   ? Movie scheduling and theater management 
+   ? Promotional campaigns and discount codes 
+   ? System configuration and settings 
+ 
+ 
+ 
+ 
+ 
+Database Design Specification 
+Entity Relationship Model 
+Database Architect: Ahmad Alzaim Core Tables Structure: 
+-- Users and Authentication CREATE TABLE users ( 
+    id INT PRIMARY KEY AUTO_INCREMENT,     email VARCHAR(255) UNIQUE NOT NULL,     password_hash VARCHAR(255) NOT NULL,     first_name VARCHAR(100) NOT NULL,     last_name VARCHAR(100) NOT NULL,     phone VARCHAR(20),     date_of_birth DATE, 
+    role ENUM('customer', 'staff', 'admin', 'super_admin') DEFAULT 
+'customer', 
+    email_verified BOOLEAN DEFAULT FALSE,     is_active BOOLEAN DEFAULT TRUE,     last_login TIMESTAMP, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE 
+CURRENT_TIMESTAMP, 
+    INDEX idx_email (email), 
+    INDEX idx_role (role) 
+); 
+ 
+-- Movies Management CREATE TABLE movies ( 
+    id INT PRIMARY KEY AUTO_INCREMENT,     title VARCHAR(255) NOT NULL,     slug VARCHAR(255) UNIQUE NOT NULL,     description TEXT,     duration_minutes INT NOT NULL,     genre VARCHAR(255),     rating VARCHAR(10),     language VARCHAR(50),     release_date DATE,     poster_url VARCHAR(500),     trailer_url VARCHAR(500),     director VARCHAR(255),     cast JSON, 
+    is_active BOOLEAN DEFAULT TRUE,     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE 
+CURRENT_TIMESTAMP, 
+    INDEX idx_title (title), 
+    INDEX idx_genre (genre), 
+    INDEX idx_rating (rating) 
+); 
+ 
+-- Theater and Seating CREATE TABLE theaters (     id INT PRIMARY KEY AUTO_INCREMENT,     name VARCHAR(255) NOT NULL,     location VARCHAR(255),     total_seats INT NOT NULL, 
+rows INT NOT NULL, seats_per_row INT NOT NULL, facilities JSON, 
+is_active BOOLEAN DEFAULT TRUE, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+); 
+ 
+CREATE TABLE seats ( 
+    id INT PRIMARY KEY AUTO_INCREMENT,     theater_id INT NOT NULL,     row_label VARCHAR(5) NOT NULL,     seat_number INT NOT NULL, 
+    seat_type ENUM('regular', 'premium', 'vip') DEFAULT 'regular',     base_price DECIMAL(10,2) NOT NULL,     is_accessible BOOLEAN DEFAULT FALSE, 
+    FOREIGN KEY (theater_id) REFERENCES theaters(id), 
+    UNIQUE KEY unique_seat (theater_id, row_label, seat_number) 
+); 
+ 
+-- Showtimes 
+CREATE TABLE showtimes (     id INT PRIMARY KEY AUTO_INCREMENT,     movie_id INT NOT NULL,     theater_id INT NOT NULL,     show_date DATE NOT NULL,     show_time TIME NOT NULL,     end_time TIME NOT NULL, 
+    price_multiplier DECIMAL(3,2) DEFAULT 1.00,     available_seats INT NOT NULL,     is_active BOOLEAN DEFAULT TRUE, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     FOREIGN KEY (movie_id) REFERENCES movies(id), 
+    FOREIGN KEY (theater_id) REFERENCES theaters(id), 
+    INDEX idx_show_date (show_date), 
+    INDEX idx_movie_theater (movie_id, theater_id) 
+); 
+ 
+-- Bookings and Transactions CREATE TABLE bookings ( 
+    id INT PRIMARY KEY AUTO_INCREMENT,     user_id INT NOT NULL,     showtime_id INT NOT NULL, 
+    booking_reference VARCHAR(20) UNIQUE NOT NULL,     total_seats INT NOT NULL,     total_amount DECIMAL(10,2) NOT NULL,     discount_amount DECIMAL(10,2) DEFAULT 0.00,     final_amount DECIMAL(10,2) NOT NULL, 
+    status ENUM('pending', 'confirmed', 'cancelled', 'completed') DEFAULT 
+'pending', 
+    booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     expires_at TIMESTAMP, 
+    FOREIGN KEY (user_id) REFERENCES users(id), 
+    FOREIGN KEY (showtime_id) REFERENCES showtimes(id), 
+    INDEX idx_user_bookings (user_id), 
+    INDEX idx_booking_date (booking_date) 
+); 
+ 
+CREATE TABLE booking_seats (     id INT PRIMARY KEY AUTO_INCREMENT,     booking_id INT NOT NULL, seat_id INT NOT NULL, 
+seat_price DECIMAL(10,2) NOT NULL, 
+FOREIGN KEY (booking_id) REFERENCES bookings(id), 
+FOREIGN KEY (seat_id) REFERENCES seats(id), 
+UNIQUE KEY unique_booking_seat (booking_id, seat_id) 
+); 
+ 
+-- Promotions and Discounts CREATE TABLE promotions (     id INT PRIMARY KEY AUTO_INCREMENT,     code VARCHAR(50) UNIQUE NOT NULL,     name VARCHAR(255) NOT NULL,     description TEXT, 
+    discount_type ENUM('percentage', 'fixed_amount') NOT NULL,     discount_value DECIMAL(10,2) NOT NULL,     min_booking_amount DECIMAL(10,2) DEFAULT 0,     max_discount_amount DECIMAL(10,2),     usage_limit INT DEFAULT NULL,     used_count INT DEFAULT 0,     valid_from TIMESTAMP NOT NULL,     valid_until TIMESTAMP NOT NULL,     is_active BOOLEAN DEFAULT TRUE, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    INDEX idx_promo_code (code), 
+    INDEX idx_promo_active (is_active, valid_from, valid_until) 
+); 
+ 
+-- User Promotion Usage CREATE TABLE user_promotions (     id INT PRIMARY KEY AUTO_INCREMENT,     user_id INT NOT NULL,     promotion_id INT NOT NULL,     booking_id INT, 
+    used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    FOREIGN KEY (user_id) REFERENCES users(id), 
+    FOREIGN KEY (promotion_id) REFERENCES promotions(id), 
+    FOREIGN KEY (booking_id) REFERENCES bookings(id), 
+    UNIQUE KEY unique_user_promotion (user_id, promotion_id) 
+); 
+ 
+-- Movie Reviews and Ratings 
+CREATE TABLE reviews ( id INT PRIMARY KEY AUTO_INCREMENT, user_id INT NOT NULL, movie_id INT NOT NULL, 
+rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5), review_text TEXT, 
+    is_verified_purchase BOOLEAN DEFAULT FALSE,     helpful_count INT DEFAULT 0,     is_approved BOOLEAN DEFAULT TRUE,     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE 
+CURRENT_TIMESTAMP, 
+    FOREIGN KEY (user_id) REFERENCES users(id), 
+    FOREIGN KEY (movie_id) REFERENCES movies(id), 
+    UNIQUE KEY unique_user_movie_review (user_id, movie_id), 
+    INDEX idx_movie_reviews (movie_id), 
+    INDEX idx_rating (rating) 
+); 
+ 
+-- Review Helpfulness Tracking CREATE TABLE review_helpfulness (     id INT PRIMARY KEY AUTO_INCREMENT,     review_id INT NOT NULL,     user_id INT NOT NULL,     is_helpful BOOLEAN NOT NULL, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     FOREIGN KEY (review_id) REFERENCES reviews(id), 
+    FOREIGN KEY (user_id) REFERENCES users(id), 
+    UNIQUE KEY unique_user_review_helpful (user_id, review_id) 
+); 
+ 
+-- Notifications 
+CREATE TABLE notifications (     id INT PRIMARY KEY AUTO_INCREMENT,     user_id INT NOT NULL,     title VARCHAR(255) NOT NULL,     message TEXT NOT NULL, 
+    type ENUM('booking', 'payment', 'promotion', 'system', 'review') NOT NULL, 
+    is_read BOOLEAN DEFAULT FALSE,     data JSON, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     FOREIGN KEY (user_id) REFERENCES users(id), 
+    INDEX idx_user_notifications (user_id, is_read), 
+    INDEX idx_notification_type (type) 
+); 
+ 
+-- User Preferences 
+CREATE TABLE user_preferences (     id INT PRIMARY KEY AUTO_INCREMENT,     user_id INT NOT NULL, 
+    email_notifications BOOLEAN DEFAULT TRUE,     sms_notifications BOOLEAN DEFAULT FALSE,     push_notifications BOOLEAN DEFAULT TRUE,     marketing_emails BOOLEAN DEFAULT FALSE,     preferred_language VARCHAR(10) DEFAULT 'en',     preferred_theaters JSON,     favorite_genres JSON, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE 
+CURRENT_TIMESTAMP, 
+    FOREIGN KEY (user_id) REFERENCES users(id), 
+UNIQUE KEY unique_user_prefs (user_id) 
+); 
+ 
+-- Seat Hold Tracking (for temporary reservations) CREATE TABLE seat_holds (     id INT PRIMARY KEY AUTO_INCREMENT,     showtime_id INT NOT NULL,     seat_id INT NOT NULL,     user_id INT NOT NULL,     expires_at TIMESTAMP NOT NULL, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     FOREIGN KEY (showtime_id) REFERENCES showtimes(id), 
+    FOREIGN KEY (seat_id) REFERENCES seats(id), 
+    FOREIGN KEY (user_id) REFERENCES users(id), 
+    UNIQUE KEY unique_seat_hold (showtime_id, seat_id), 
+    INDEX idx_hold_expiry (expires_at) 
+); 
+ 
+-- System Logs 
+CREATE TABLE system_logs (     id INT PRIMARY KEY AUTO_INCREMENT, 
+    level ENUM('error', 'warn', 'info', 'debug') NOT NULL,     message TEXT NOT NULL,     context JSON,     user_id INT,     ip_address VARCHAR(45),     user_agent TEXT, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    FOREIGN KEY (user_id) REFERENCES users(id), 
+    INDEX idx_log_level (level), 
+    INDEX idx_log_date (created_at) 
+); 
+ 
+-- API Keys for external integrations CREATE TABLE api_keys ( 
+    id INT PRIMARY KEY AUTO_INCREMENT,     key_name VARCHAR(100) NOT NULL,     key_hash VARCHAR(255) NOT NULL,     permissions JSON, 
+    is_active BOOLEAN DEFAULT TRUE,     last_used_at TIMESTAMP, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    expires_at TIMESTAMP,     INDEX idx_key_hash (key_hash), 
+    INDEX idx_key_active (is_active) ); 
+ 
+API Specifications 
+Authentication Endpoints 
+POST   /api/v1/auth/register          - User registration 
+POST   /api/v1/auth/login             - User login 
+POST   /api/v1/auth/logout            - User logout 
+POST   /api/v1/auth/refresh-token     - Token refresh 
+POST   /api/v1/auth/forgot-password   - Password reset request 
+POST   /api/v1/auth/reset-password    - Password reset confirmation 
+GET    /api/v1/auth/verify-email      - Email verification 
+GET    /api/v1/auth/profile           - Get user profile 
+PUT    /api/v1/auth/profile           - Update user profile 
+POST   /api/v1/auth/change-password   - Change password 
+POST   /api/v1/auth/resend-verification - Resend email verification 
+Movies & Showtimes 
+GET    /api/v1/movies                 - List all movies (with filters) 
+GET    /api/v1/movies/:id             - Get movie details 
+GET    /api/v1/movies/:id/showtimes   - Get movie showtimes 
+GET    /api/v1/movies/search          - Search movies by title/genre 
+GET    /api/v1/movies/featured        - Get featured movies 
+GET    /api/v1/movies/upcoming        - Get upcoming releases 
+GET    /api/v1/movies/now-playing     - Get currently playing movies 
+POST   /api/v1/movies                 - Create movie (admin) 
+PUT    /api/v1/movies/:id             - Update movie (admin) 
+DELETE /api/v1/movies/:id             - Delete movie (admin) 
+POST   /api/v1/movies/:id/upload      - Upload movie poster (admin) 
+ 
+GET    /api/v1/showtimes              - List all showtimes 
+GET    /api/v1/showtimes/:id          - Get showtime details 
+POST   /api/v1/showtimes              - Create showtime (admin) 
+PUT    /api/v1/showtimes/:id          - Update showtime (admin) 
+DELETE /api/v1/showtimes/:id          - Delete showtime (admin) 
+GET    /api/v1/showtimes/date/:date   - Get showtimes by date 
+Theaters & Seats 
+GET    /api/v1/theaters               - List all theaters 
+GET    /api/v1/theaters/:id           - Get theater details 
+GET    /api/v1/theaters/:id/layout    - Get theater seat layout 
+POST   /api/v1/theaters               - Create theater (admin) 
+PUT    /api/v1/theaters/:id           - Update theater (admin) 
+DELETE /api/v1/theaters/:id           - Delete theater (admin)  
+GET    /api/v1/seats/theater/:theaterId - Get all seats in theater GET    /api/v1/seats/showtime/:showtimeId - Get seat availability for showtime 
+PUT    /api/v1/seats/:id              - Update seat details (admin) 
+POST   /api/v1/seats/bulk             - Bulk create seats (admin) 
+Booking Management 
+POST   /api/v1/bookings               - Create new booking 
+GET    /api/v1/bookings/user/:userId  - Get user bookings 
+GET    /api/v1/bookings/:id           - Get booking details 
+PUT    /api/v1/bookings/:id/cancel    - Cancel booking 
+GET    /api/v1/bookings/:id/tickets   - Get e-tickets 
+POST   /api/v1/bookings/:id/resend    - Resend booking confirmation 
+GET    /api/v1/showtimes/:id/seats    - Get seat availability 
+POST   /api/v1/showtimes/:id/hold     - Hold seats temporarily 
+DELETE /api/v1/showtimes/:id/hold     - Release held seats 
+GET    /api/v1/bookings/:id/qr        - Generate QR code for booking 
+Payment Processing 
+POST   /api/v1/payments/intent        - Create payment intent 
+POST   /api/v1/payments/confirm       - Confirm payment 
+GET    /api/v1/payments/history       - Payment history 
+GET    /api/v1/payments/:id           - Get payment details 
+POST   /api/v1/payments/refund        - Process refund 
+GET    /api/v1/payments/methods       - Get saved payment methods 
+POST   /api/v1/payments/methods       - Add payment method 
+DELETE /api/v1/payments/methods/:id   - Delete payment method 
+POST   /api/v1/payments/webhook       - Payment webhook handler 
+Promotions & Discounts 
+GET    /api/v1/promotions             - List active promotions 
+GET    /api/v1/promotions/:code       - Validate promotion code 
+POST   /api/v1/promotions             - Create promotion (admin) 
+PUT    /api/v1/promotions/:id         - Update promotion (admin) 
+DELETE /api/v1/promotions/:id         - Delete promotion (admin) 
+GET    /api/v1/promotions/user/:userId - Get user-specific promotions 
+Reviews & Ratings 
+GET    /api/v1/reviews/movie/:movieId - Get movie reviews POST   /api/v1/reviews                - Create review 
+PUT    /api/v1/reviews/:id            - Update review 
+DELETE /api/v1/reviews/:id            - Delete review 
+GET    /api/v1/reviews/user/:userId   - Get user reviews 
+POST   /api/v1/reviews/:id/helpful    - Mark review as helpful 
+Notifications 
+GET    /api/v1/notifications          - Get user notifications 
+PUT    /api/v1/notifications/:id/read - Mark notification as read 
+POST   /api/v1/notifications/push     - Send push notification (admin) 
+PUT    /api/v1/notifications/preferences - Update notification preferences 
+Administrative 
+GET    /api/v1/admin/dashboard        - Dashboard analytics 
+GET    /api/v1/admin/users            - User management 
+GET    /api/v1/admin/users/:id        - Get user details 
+PUT    /api/v1/admin/users/:id/status - Update user status 
+GET    /api/v1/admin/bookings         - Booking management 
+GET    /api/v1/admin/bookings/stats   - Booking statistics 
+GET    /api/v1/admin/reports          - Generate reports 
+GET    /api/v1/admin/reports/revenue  - Revenue reports 
+GET    /api/v1/admin/reports/occupancy - Theater occupancy reports 
+POST   /api/v1/admin/promotions       - Create promotions 
+GET    /api/v1/admin/system/health    - System health check 
+GET    /api/v1/admin/system/logs      - System logs POST   /api/v1/admin/backup           - Create database backup 
+ 
+ 
+ 
+ 
+Development Methodology 
+Agile Development Process 
+? Sprint Duration: 2 weeks 
+? Team Meetings: Daily standups, weekly retrospectives ? 	Code Reviews: Mandatory peer review for all commits 
+? Testing: Test-driven development (TDD) approach 
+ 
+ 
+ 
+Git Workflow Strategy 
+main (production-ready code) ??? develop (integration branch) 
+?   ??? feature/user-authentication (Driss) 
+?   ??? feature/movie-catalog (Perpetual) 
+?   ??? feature/seat-selection (Collins) 
+?   ??? feature/payment-integration (Sardor) 
+?   ??? feature/admin-dashboard (Ahmad) Code Quality Standards 
+? ESLint Configuration: Airbnb style guide 
+? Prettier: Code formatting automation 
+? Husky: Pre-commit hooks for linting and testing 
+? SonarQube: Code quality analysis 
+? Jest Coverage: Minimum 80% code coverage 
+ 
+Testing Strategy 
+Frontend Testing 
+Responsible: Perpetual, Collins, Anwar, Missira Unit Testing: 
+? Component testing with React Testing Library 
+? Utility function testing with Jest 
+? State management testing (Redux/Context) 
+Integration Testing: 
+
+API integration testing 
+User workflow testing 
+Cross-browser compatibility testing 
+E2E Testing: 
+? Cypress for critical user paths 
+? Booking flow end-to-end testing 
+? Payment integration testing 
+Backend Testing 
+Responsible: Sardor, Driss Unit Testing: 
+? Controller and service layer testing 
+? Middleware testing 
+? Utility function testing 
+Integration Testing: 
+? Database integration testing 
+? API endpoint testing with Supertest 
+? Third-party service integration testing 
+Security Testing: 
+? Authentication flow testing 
+? Authorization testing 
+? Input validation testing 
+? SQL injection prevention testing 
+Database Testing 
+Responsible: Ahmad 
+Data Integrity Testing: 
+   ? Foreign key constraints testing 
+   ? Transaction rollback testing 
+   ? Data validation testing Performance Testing: 
+   ? Query optimization testing 
+   ? Load testing with large datasets 
+   ? Index effectiveness testing 
+ 
+Security Implementation 
+Authentication Security 
+? JWT Implementation: Access tokens (15 min) + Refresh tokens (7 days) 
+? Password Security: bcrypt with salt rounds = 12 
+? Account Security: Rate limiting, account lockout, CAPTCHA 
+? Session Management: Secure cookie configuration, SameSite policy 
+Data Protection 
+? Input Validation: Server-side validation with Joi schemas 
+? SQL Injection Prevention: Parameterized queries, ORM usage 
+? XSS Protection: Content Security Policy, input sanitization 
+? CSRF Protection: Double-submit cookies, SameSite cookies 
+Payment Security 
+? PCI DSS Compliance: No card data storage, tokenization 
+? HTTPS Enforcement: SSL/TLS 1.3, HSTS headers ? 	Data Encryption: AES-256 for sensitive data at rest 
+? API Security: OAuth 2.0, API key management 
+ 
+Deployment Architecture 
+Production Environment 
+???????????????????    ???????????????????    ??????????????????? 
+?   Load Balancer ?    ?   Web Servers   ?    ?   Database      ? 
+?   (Nginx/ALB)   ??????   (PM2/Docker)  ??????   (RDS/MySQL)   ? 
+???????????????????    ???????????????????    ??????????????????? 
+         ?                       ?                       ? 
+         ?                       ?                       ? 
+         ?                       ?                       ? 
+???????????????????    ???????????????????    ??????????????????? 
+?   CDN           ?    ?   Redis Cache   ?    ?   Monitoring    ? 
+?   (CloudFlare)  ?    ?   (ElastiCache) ?    ?   (DataDog)     ? 
+???????????????????    ???????????????????    ??????????????????? 
+DevOps Pipeline 
+1. Development: Local development with Docker Compose 
+2. Staging: Automated deployment with GitHub Actions 
+3. Production: Blue-green deployment strategy 
+4. Monitoring: Application performance monitoring (APM) 
+Environment Configuration 
+Development: Local MySQL, Redis, mock payment gateway 
+Staging: Cloud database, Redis cluster, Stripe test mode 
+Production: High-availability setup, monitoring, logging 
+ 
+Project Timeline & Milestones 
+Phase 1: Foundation & Setup (Weeks 1-2) 
+All Team Members 
+? [ ] Project repository setup and branching strategy 
+? [ ] Development environment configuration 
+? [ ] Database schema design and creation 
+? [ ] API documentation setup (Swagger) 
+? [ ] CI/CD pipeline configuration 
+Deliverables: 
+? Working development environment 
+? Initial database schema 
+? Project structure and architecture 
+Phase 2: Core Development (Weeks 3-8) 
+Sprint 1 (Weeks 3-4): Authentication & User Management 
+Lead: Driss Bouadoud 
+? [ ] User registration and email verification 
+? [ ] Login/logout with JWT implementation 
+? [ ] Password reset functionality 
+? [ ] Role-based access control 
+? [ ] User profile management 
+Lead: Perpetual Dumebi Isaiah Asaka 
+? [ ] Authentication UI components 
+? [ ] Form validation and error handling 
+? [ ] Protected route implementation 
+? [ ] User profile interface 
+Sprint 2 (Weeks 5-6): Movie Catalog & Booking System 
+Lead: Ahmad Alzaim 
+? [ ] Movie database schema optimization 
+? [ ] Showtime and theater management 
+? [ ] Seat availability tracking 
+? [ ] Booking data relationships 
+Lead: Chukwubuikem Collins Okafor & Anwar Awal 
+? [ ] Movie listing interface 
+? [ ] Interactive seat selection component 
+? [ ] Booking flow UI implementation 
+? [ ] Real-time seat availability updates 
+Sprint 3 (Weeks 7-8): Payment Integration & Admin Dashboard 
+Lead: Sardor [Surname] 
+? [ ] Payment gateway integration (Stripe) 
+? [ ] Transaction processing logic 
+? [ ] Refund handling system 
+? [ ] Payment security implementation 
+Lead: Missira Abba Boukar 
+? [ ] Payment UI components 
+? [ ] Admin dashboard interface 
+? [ ] Booking management interface 
+? [ ] Analytics and reporting views 
+Phase 3: Integration & Testing (Weeks 9-11) 
+Week 9: System Integration 
+All Team Members 
+? [ ] Frontend-backend API integration 
+? [ ] Database integration testing 
+? [ ] Cross-component functionality testing 
+? [ ] Performance optimization 
+Week 10: Security & Payment Testing 
+Security Team: Driss, Sardor 
+? [ ] Payment gateway testing (sandbox) 
+? [ ] Security vulnerability assessment 
+? [ ] Load testing and performance tuning 
+? [ ] User acceptance testing preparation 
+Week 11: User Testing & Bug Fixes 
+QA Team: All Members 
+[ ] User acceptance testing execution 
+[ ] Bug identification and prioritization 
+[ ] Critical bug fixes 
+? [ ] Final security audit 
+Phase 4: Deployment & Documentation (Week 12) 
+Production Deployment 
+DevOps Team: Sardor, Ahmad 
+   ? [ ] Production environment setup 
+   ? [ ] SSL certificate configuration 
+   ? [ ] Database migration to production 
+   ? [ ] Monitoring and logging setup Documentation & Presentation 
+Documentation Team: All Members 
+   ? [ ] Technical documentation completion 
+   ? [ ] User manual creation 
+   ? [ ] API documentation finalization 
+   ? [ ] Project presentation preparation 
+   ? [ ] Code repository cleanup 
+ 
+Risk Management & Mitigation 
+Technical Risks 
+High Priority Risks: 
+1. Payment Integration Complexity o 	Risk: Stripe API integration challenges o 	Mitigation: Early prototyping, thorough testing in sandbox o 	Owner: Sardor, Driss 
+2. Real-time Seat Selection Conflicts o 	Risk: Multiple users selecting same seats o 	Mitigation: WebSocket implementation with seat locking mechanism o 	Owner: Collins, Anwar 
+3. Database Performance o 	Risk: Slow queries during peak booking times o 	Mitigation: Query optimization, proper indexing, caching strategy o 	Owner: Ahmad 
+Medium Priority Risks: 
+4. Third-party Service Dependencies o 	Risk: Movie API or payment gateway downtime o 	Mitigation: Fallback mechanisms, error handling, service monitoring o 	Owner: Backend Team 
+5. Browser Compatibility Issues o 	Risk: Frontend not working across all browsers o 	Mitigation: Cross-browser testing, progressive enhancement o 	Owner: Frontend Team 
+Project Management Risks: 
+Team Coordination: 
+   ? Risk: Communication gaps between frontend and backend teams 
+   ? Mitigation: Daily standups, shared documentation, integration testing 
+   ? Schedule: Weekly team meetings every Friday Timeline Management: 
+   ? Risk: Feature scope creep affecting delivery timeline 
+   ? Mitigation: Clear requirements documentation, change control process 
+   ? Buffer: 1-week buffer allocated for critical bug fixes 
+Resource Constraints: 
+   ? Risk: Team member availability during exam periods 
+   ? Mitigation: Workload distribution planning, peer support system 
+   ? Contingency: Cross-training on critical components 
+ 
+Quality Assurance Framework 
+Code Quality Metrics 
+? Code Coverage: Minimum 80% for backend, 70% for frontend 
+? Complexity Score: Cyclomatic complexity < 10 per function 
+? Maintainability Index: Score > 80 using SonarQube 
+? Documentation Coverage: All public APIs documented 
+Performance Standards 
+? Page Load Time: < 2 seconds on 3G connection 
+? API Response Time: < 200ms for 95% of requests 
+? Database Query Time: < 100ms for 90% of queries 
+? Concurrent Users: Support 100 simultaneous bookings 
+Security Standards 
+OWASP Top 10: Zero critical vulnerabilities 
+Penetration Testing: External security assessment 
+Data Privacy: GDPR compliance for user data 
+	? 	Payment Security: PCI DSS Level 1 compliance 
+ 
+Success Metrics & KPIs 
+Technical KPIs 
+? System Uptime: 99.5% availability during demo period 
+? Error Rate: < 1% of all requests result in errors 
+? Security Score: Zero critical vulnerabilities in final audit 
+? Performance Score: Google Lighthouse score > 90 
+Functional KPIs 
+? Feature Completion: 100% of core features operational 
+? User Journey Success: 95% completion rate for booking flow 
+? Payment Success Rate: 99% of payment transactions successful 
+? Admin Efficiency: 50% reduction in manual booking management time 
+User Experience KPIs 
+? User Satisfaction: > 4.0/5.0 in user testing surveys 
+? Task Completion Rate: 90% of users complete booking without assistance 
+? Error Recovery: Users can recover from errors in < 3 steps 
+? Accessibility Score: WCAG 2.1 AA compliance 
+ 
+Documentation Deliverables 
+Technical Documentation 
+1. System Architecture Document o 	High-level system design o 	Component interaction diagrams o 	Technology stack justification 
+o Scalability considerations 
+2. API Documentation o 	Complete OpenAPI 3.0 specification o 	Request/response examples o 	Authentication requirements o 	Error code definitions 
+3. Database Documentation o 	Entity-relationship diagrams o 	Table schemas with constraints 
+o Indexing strategy o 	Data migration scripts 
+4. Deployment Guide o 	Environment setup instructions o 	Configuration management o 	Monitoring and maintenance o 	Troubleshooting guide 
+User Documentation 
+1. Customer User Manual o 	Account creation and management o 	Movie browsing and booking process o 	Payment and ticket management o 	Mobile app usage guide 
+2. Administrator Guide o 	Dashboard navigation o 	User and booking management o 	Movie and theater administration o 	Analytics and reporting features 
+3. Developer Guide o 	Local development setup o 	Code contribution guidelines o 	Testing procedures o 	Deployment processes 
+ 
+Project Presentation Structure 
+Final Presentation Outline (30 minutes) 
+Introduction (5 minutes) 
+? Team introductions and roles 
+? Project overview and objectives 
+? Technology stack overview 
+Live Demonstration (15 minutes) 
+? User registration and authentication 
+? Movie browsing and seat selection 
+? Complete booking process with payment 
+? Admin dashboard functionality 
+? Mobile responsiveness showcase 
+Technical Deep Dive (7 minutes) 
+? Architecture and design decisions 
+Security implementation highlights 
+Database design and optimization 
+Challenges overcome and solutions 
+Results & Metrics (3 minutes) 
+? Performance benchmarks achieved 
+? Security audit results 
+? User testing feedback 
+? Future enhancement roadmap 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Conclusion & Future Enhancements 
+Project Achievements 
+This capstone project successfully demonstrates: 
+? Full-stack Development Expertise: Modern web application using React.js and Express.js 
+? Database Design Skills: Normalized MySQL schema with optimal performance 
+? Security Implementation: Comprehensive security measures for user data and payments 
+? User Experience Design: Intuitive interface with responsive design principles 
+? Project Management: Agile methodology with successful team coordination 
+Technical Innovations 
+   ? Real-time seat selection with conflict resolution 
+   ? Secure payment processing with multiple gateway support 
+   ? Responsive design optimized for mobile booking experience 
+   ? Comprehensive admin analytics dashboard 
+   ? Automated testing and deployment pipeline Future Enhancement Roadmap 
+Phase 1 (Post-Capstone): 
+   ? Web application development (React Native) 
+   ? Advanced analytics with machine learning recommendations 
+   ? Integration with cinema loyalty programs 
+   ? Multi-language support Phase 2 (Long-term): 
+   ? Microservices architecture migration 
+   ? Real-time chat support integration ? 	Social features and movie reviews 
+   ? Advanced fraud detection system 
+Learning Outcomes 
+Each team member has gained valuable experience in: 
+? Modern Web Development: Latest frontend and backend technologies 
+? Database Management: Design, optimization, and maintenance 
+? Security Best Practices: Authentication, authorization, and data protection 
+? Team Collaboration: Agile development and version control 
+? Professional Documentation: Technical writing and presentation skills 
+ 
+
+
+
+
+
+
+
+
+? 
+? 
+? 
+
+? 
+? 
+? 
+

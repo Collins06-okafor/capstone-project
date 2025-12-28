@@ -1,50 +1,30 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import pkg from 'pg';
-const { Pool } = pkg;
-
-dotenv.config();
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
+const pool = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// PostgreSQL connection pool
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-// Test database connection
-pool.query('SELECT NOW()', (err, res) => {
-  if (err) {
-    console.error('❌ Database connection error:', err);
-  } else {
-    console.log('✅ Database connected successfully at:', res.rows[0].now);
-  }
-});
 
 // Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/movies', require('./routes/movieRoutes'));
+app.use('/api/bookings', require('./routes/bookingRoutes'));
+app.use('/api/showtimes', require('./routes/showtimeRoutes'));
+app.use('/api/reviews', require('./routes/reviewRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/upload', require('./routes/uploadRoutes'));
+
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'HiMovie API Server',
-    status: 'running',
-    version: '1.0.0'
-  });
+    res.send('API is running...');
 });
 
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
-// Export pool for use in routes
-export { pool };
-
-// Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
