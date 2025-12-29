@@ -1,45 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useLocation, useNavigate } from "react-router-dom";
+import "./Bookings.css";
 
 const Bookings = () => {
-    const [bookings, setBookings] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const { state } = useLocation();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchBookings = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/bookings', {
-                    headers: { 'x-auth-token': token }
-                });
-                setBookings(res.data);
-            } catch (err) {
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchBookings();
-    }, []);
-
-    if (loading) return <div>Loading bookings...</div>;
-
+  if (!state) {
     return (
-        <div>
-            <h1>My Bookings</h1>
-            <ul>
-                {bookings.map(booking => (
-                    <li key={booking.id}>
-                        <strong>{booking.title}</strong> -
-                        Date: {new Date(booking.show_date).toLocaleDateString()} {booking.show_time?.substring(0, 5)} -
-                        Seats: {Array.isArray(booking.seats) ? booking.seats.join(', ') : booking.seats} -
-                        Total: ${booking.total_amount}
-                    </li>
-                ))}
-            </ul>
-            {bookings.length === 0 && <p>No bookings found.</p>}
-        </div>
+      <div className="booking-container">
+        <h2>No booking information found.</h2>
+      </div>
     );
+  }
+
+  const { movie, time, seats, total } = state;
+
+  const handleConfirm = () => {
+    // Later: send booking data to backend
+    navigate("/success", {
+      state: {
+        movie,
+        time,
+        seats,
+        total,
+      },
+    });
+  };
+
+  return (
+    <div className="booking-container">
+      <h1>Booking Details</h1>
+
+      <div className="booking-card">
+        <p>
+          <strong>Movie:</strong> {movie.title}
+        </p>
+
+        <p>
+          <strong>Showtime:</strong> {time}
+        </p>
+
+        <p>
+          <strong>Seats:</strong> {seats.join(", ")}
+        </p>
+
+        <p className="price">
+          <strong>Total Price:</strong> ${total}
+        </p>
+
+        <button onClick={handleConfirm}>Confirm Booking</button>
+      </div>
+    </div>
+  );
 };
 
 export default Bookings;

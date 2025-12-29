@@ -1,0 +1,47 @@
+.register-container {
+  max-width: 600px;
+  margin: 100px auto;
+  padding: 40px;
+  color: #fff;
+  background: #000;
+}
+
+.register-container h1 {
+  margin-bottom: 40px;
+}
+
+.register-container .row {
+  display: flex;
+  gap: 20px;
+}
+
+.register-container input {
+  width: 100%;
+  padding: 18px;
+  margin-bottom: 25px;
+  border-radius: 30px;
+  border: 1px solid #d100c9;
+  background: #2b0f2b;
+  color: #ff4fe0;
+  font-size: 16px;
+}
+
+.register-container input::placeholder {
+  color: #ff4fe0;
+  opacity: 0.85;
+}
+
+.register-container button {
+  width: 100%;
+  padding: 18px;
+  border-radius: 30px;
+  border: none;
+  background: #d100c9;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.register-container button:hover {
+  background: #ff00e6;
+}

@@ -1,0 +1,60 @@
+.movie-detail-container {
+  display: flex;
+  padding: 60px;
+  background: #000;
+  color: #fff;
+  min-height: 100vh;
+  gap: 60px;
+}
+
+.movie-left img {
+  width: 320px;
+  border-radius: 20px;
+}
+
+.movie-right {
+  max-width: 600px;
+}
+
+.movie-right h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.description {
+  opacity: 0.85;
+  margin-bottom: 30px;
+}
+
+.times {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0 40px;
+}
+
+.time {
+  padding: 12px 22px;
+  border-radius: 25px;
+  border: 1px solid #d100c9;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.time.active {
+  background: #d100c9;
+}
+
+.book-btn {
+  padding: 16px 40px;
+  border-radius: 30px;
+  border: none;
+  background: #d100c9;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.book-btn:hover {
+  background: #ff00e6;
+}

@@ -1,99 +1,92 @@
-import React, { useEffect, useState } from 'react';
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import "./SeatMap.css";
 
-const SeatMap = ({ showtimeId, price, onSeatSelect, selectedSeats }) => {
-    // Mock 10x10 grid
-    const rows = 10;
-    const cols = 10;
-    const [bookedSeats, setBookedSeats] = useState([]);
-    const [loading, setLoading] = useState(false); // Don't block render on loading if possible, but here we need booked status
+const rows = ["A", "B", "C", "D", "E"];
+const cols = 8;
+const SEAT_PRICE = 25;
 
-    useEffect(() => {
-        if (!showtimeId) return;
-        const fetchBookedSeats = async () => {
-            setLoading(true);
-            try {
-                // Fetch booked seats for this showtime
-                const res = await fetch(`http://localhost:5000/api/showtimes/${showtimeId}/seats`);
-                const data = await res.json();
-                setBookedSeats(data);
-            } catch (err) {
-                console.error("Failed to fetch booked seats", err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchBookedSeats();
-    }, [showtimeId]);
+// Fake booked seats (later from backend)
+const bookedSeats = ["A3", "B4", "C5"];
 
-    const handleSeatClick = (seatLabel) => {
-        if (bookedSeats.includes(seatLabel)) return;
-        onSeatSelect(seatLabel);
-    };
+const SeatMap = () => {
+  const { state } = useLocation();
+  const navigate = useNavigate();
 
-    const renderSeats = () => {
-        let grid = [];
-        for (let r = 0; r < rows; r++) {
-            let rowSeats = [];
-            for (let c = 1; c <= cols; c++) {
-                const rowLabel = String.fromCharCode(65 + r); // A, B, C...
-                const seatLabel = `${rowLabel}${c}`;
-                const isBooked = bookedSeats.includes(seatLabel);
-                const isSelected = selectedSeats.includes(seatLabel);
+  const [selectedSeats, setSelectedSeats] = useState([]);
 
-                rowSeats.push(
-                    <div
-                        key={seatLabel}
-                        onClick={() => handleSeatClick(seatLabel)}
-                        style={{
-                            width: '30px',
-                            height: '30px',
-                            margin: '5px',
-                            backgroundColor: isBooked ? '#e74c3c' : isSelected ? '#f1c40f' : '#2ecc71',
-                            cursor: isBooked ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '10px',
-                            color: '#fff',
-                            borderRadius: '4px'
-                        }}
-                        title={isBooked ? 'Booked' : `Seat ${seatLabel} - $${price}`}
-                    >
-                        {seatLabel}
-                    </div>
-                );
-            }
-            grid.push(<div key={r} style={{ display: 'flex' }}>{rowSeats}</div>);
-        }
-        return grid;
-    };
+  if (!state) {
+    return <h2 style={{ color: "white" }}>No booking data</h2>;
+  }
 
-    return (
-        <div style={{ marginTop: '20px' }}>
-            <h4>Select Seats (Screen this way)</h4>
-            <div style={{
-                width: '100%',
-                height: '20px',
-                background: '#ccc',
-                marginBottom: '20px',
-                textAlign: 'center',
-                fontSize: '12px',
-                lineHeight: '20px'
-            }}>SCREEN</div>
+  const toggleSeat = (seat) => {
+    if (bookedSeats.includes(seat)) return;
 
-            {loading ? <p>Loading seat map...</p> : (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                    {renderSeats()}
-                </div>
-            )}
-
-            <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', marginTop: '10px' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}><div style={{ width: 20, height: 20, background: '#2ecc71', marginRight: 5 }}></div> Available</div>
-                <div style={{ display: 'flex', alignItems: 'center' }}><div style={{ width: 20, height: 20, background: '#e74c3c', marginRight: 5 }}></div> Booked</div>
-                <div style={{ display: 'flex', alignItems: 'center' }}><div style={{ width: 20, height: 20, background: '#f1c40f', marginRight: 5 }}></div> Selected</div>
-            </div>
-        </div>
+    setSelectedSeats((prev) =>
+      prev.includes(seat)
+        ? prev.filter((s) => s !== seat)
+        : [...prev, seat]
     );
+  };
+
+  const handleConfirm = () => {
+    if (selectedSeats.length === 0) {
+      alert("Please select at least one seat");
+      return;
+    }
+
+    navigate("/bookings", {
+      state: {
+        movie: state.movie,
+        time: state.time,
+        seats: selectedSeats,
+        total: selectedSeats.length * SEAT_PRICE,
+      },
+    });
+  };
+
+  return (
+    <div className="seat-page">
+      <h1>Cinema Seat Selection</h1>
+
+      <div className="screen">SCREEN</div>
+
+      <div className="seats">
+        {rows.map((row) =>
+          [...Array(cols)].map((_, i) => {
+            const seat = `${row}${i + 1}`;
+            const isBooked = bookedSeats.includes(seat);
+            const isSelected = selectedSeats.includes(seat);
+
+            return (
+              <div
+                key={seat}
+                className={`seat 
+                  ${isBooked ? "booked" : ""}
+                  ${isSelected ? "selected" : ""}
+                `}
+                onClick={() => toggleSeat(seat)}
+              >
+                {seat}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="summary">
+        <p>
+          Selected Seats:{" "}
+          <strong>{selectedSeats.join(", ") || "None"}</strong>
+        </p>
+        <p>
+          Total Price: <strong>${selectedSeats.length * SEAT_PRICE}</strong>
+        </p>
+
+        <button onClick={handleConfirm}>Confirm Booking</button>
+      </div>
+    </div>
+  );
 };
 
 export default SeatMap;

@@ -1,0 +1,55 @@
+.success-container {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.success-card {
+  background: #111;
+  padding: 60px;
+  border-radius: 25px;
+  text-align: center;
+  border: 1px solid #d100c9;
+  max-width: 500px;
+  width: 100%;
+}
+
+.checkmark {
+  font-size: 60px;
+  color: #00ff9d;
+  margin-bottom: 20px;
+}
+
+.subtitle {
+  margin-bottom: 30px;
+  opacity: 0.85;
+}
+
+.details p {
+  margin: 12px 0;
+  font-size: 18px;
+}
+
+.total {
+  margin-top: 20px;
+  font-size: 22px;
+  color: #ff4fe0;
+}
+
+.success-card button {
+  margin-top: 40px;
+  padding: 16px 40px;
+  border-radius: 30px;
+  border: none;
+  background: #d100c9;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.success-card button:hover {
+  background: #ff00e6;
+}
