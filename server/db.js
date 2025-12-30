@@ -1,15 +1,14 @@
 const { Pool } = require('pg');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const pool = new Pool({
     user: process.env.POSTGRES_USER,
-    host: process.env.POSTGRES_HOST,
+    host: String(process.env.POSTGRES_HOST || '').trim() || 'localhost',
     database: process.env.POSTGRES_DATABASE,
-    password: process.env.POSTGRES_PASSWORD,
-    port: 5432, // Default Postgres port, usually 5432. The .env in plan had PORT=5000 which is likely for express.
-    ssl: {
-        rejectUnauthorized: false
-    }
+    password: String(process.env.POSTGRES_PASSWORD || '').trim(),
+    port: 5432,
+    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 
 // Test the connection

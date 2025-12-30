@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { API_URL } from '../config/api';
 
 const Home = () => {
     const [movies, setMovies] = useState([]);
@@ -11,7 +12,7 @@ const Home = () => {
     useEffect(() => {
         const fetchMovies = async () => {
             try {
-                let url = 'http://localhost:5000/api/movies?';
+                let url = `${API_URL}/api/movies?`;
                 if (search) url += `search=${search}&`;
                 if (genre) url += `genre=${genre}&`;
 
@@ -36,7 +37,7 @@ const Home = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            let url = 'http://localhost:5000/api/movies?';
+            let url = `${API_URL}/api/movies?`;
             if (search) url += `search=${search}&`;
             if (genre) url += `genre=${genre}&`;
             const res = await axios.get(url);
@@ -128,7 +129,7 @@ const Home = () => {
                                 setGenre(newGenre);
                                 // Trigger filter immediately
                                 setLoading(true);
-                                let url = 'http://localhost:5000/api/movies?';
+                                let url = `${API_URL}/api/movies?`;
                                 if (search) url += `search=${search}&`;
                                 if (newGenre) url += `genre=${newGenre}&`;
                                 axios.get(url).then(res => setMovies(res.data)).finally(() => setLoading(false));

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config/api';
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -21,7 +22,7 @@ const AdminDashboard = () => {
 
     const fetchMovies = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/movies');
+            const res = await axios.get(`${API_URL}/api/movies`);
             setMovies(res.data);
         } catch (err) {
             console.error(err);
@@ -42,7 +43,7 @@ const AdminDashboard = () => {
             const fetchUsers = async () => {
                 const token = localStorage.getItem('token');
                 try {
-                    const res = await axios.get('http://localhost:5000/api/admin/users', { headers: { 'x-auth-token': token } });
+                    const res = await axios.get(`${API_URL}/api/admin/users`, { headers: { 'x-auth-token': token } });
                     setUsersList(res.data);
                 } catch (err) { console.error(err); }
             };
@@ -53,7 +54,7 @@ const AdminDashboard = () => {
     const fetchStats = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:5000/api/admin/stats', { headers: { 'x-auth-token': token } });
+            const res = await axios.get(`${API_URL}/api/admin/stats`, { headers: { 'x-auth-token': token } });
             setStats(res.data);
         } catch (err) {
             console.error(err);
@@ -71,10 +72,10 @@ const AdminDashboard = () => {
 
         try {
             if (editingId) {
-                await axios.put(`http://localhost:5000/api/movies/${editingId}`, formData, config);
+                await axios.put(`${API_URL}/api/movies/${editingId}`, formData, config);
                 alert('Movie Updated');
             } else {
-                await axios.post('http://localhost:5000/api/movies', formData, config);
+                await axios.post(`${API_URL}/api/movies`, formData, config);
                 alert('Movie Created');
             }
             setFormData({ title: '', genre: '', description: '', duration_min: '', poster_url: '', release_date: '' });
@@ -102,7 +103,7 @@ const AdminDashboard = () => {
         if (!window.confirm('Are you sure?')) return;
         const token = localStorage.getItem('token');
         try {
-            await axios.delete(`http://localhost:5000/api/movies/${id}`, { headers: { 'x-auth-token': token } });
+            await axios.delete(`${API_URL}/api/movies/${id}`, { headers: { 'x-auth-token': token } });
             fetchMovies();
         } catch (err) {
             console.error(err);
@@ -123,7 +124,7 @@ const AdminDashboard = () => {
 
     const fetchShowtimes = async (movieId) => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/movies/${movieId}/showtimes`);
+            const res = await axios.get(`${API_URL}/api/movies/${movieId}/showtimes`);
             setShowtimes(res.data);
         } catch (err) {
             console.error(err);
@@ -134,7 +135,7 @@ const AdminDashboard = () => {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/showtimes',
+            await axios.post(`${API_URL}/api/showtimes`,
                 {
                     movie_id: selectedMovieForShowtime.id,
                     show_date: showtimeForm.date,
@@ -215,11 +216,11 @@ const AdminDashboard = () => {
                                                     if (!window.confirm('Delete this user?')) return;
                                                     const token = localStorage.getItem('token');
                                                     try {
-                                                        await axios.delete(`http://localhost:5000/api/admin/users/${u.id}`, { headers: { 'x-auth-token': token } });
+                                                        await axios.delete(`${API_URL}/api/admin/users/${u.id}`, { headers: { 'x-auth-token': token } });
                                                         alert('User deleted');
                                                         fetchStats(); // Using this to trigger re-fetch basically? Or create separate fetchUsers
                                                         // Quick fix: reload or simple fetchUsers function
-                                                        const res = await axios.get('http://localhost:5000/api/admin/users', { headers: { 'x-auth-token': token } });
+                                                        const res = await axios.get(`${API_URL}/api/admin/users`, { headers: { 'x-auth-token': token } });
                                                         setUsersList(res.data);
                                                     } catch (e) { console.error(e); }
                                                 }}
@@ -310,10 +311,10 @@ const AdminDashboard = () => {
                                             const formDataObj = new FormData();
                                             formDataObj.append('image', file);
                                             try {
-                                                const res = await axios.post('http://localhost:5000/api/upload', formDataObj, {
+                                                const res = await axios.post(`${API_URL}/api/upload`, formDataObj, {
                                                     headers: { 'Content-Type': 'multipart/form-data' }
                                                 });
-                                                setFormData(prev => ({ ...prev, poster_url: `http://localhost:5000${res.data}` }));
+                                                setFormData(prev => ({ ...prev, poster_url: `${API_URL}${res.data}` }));
                                                 alert('Image Uploaded!');
                                             } catch (err) {
                                                 console.error(err);

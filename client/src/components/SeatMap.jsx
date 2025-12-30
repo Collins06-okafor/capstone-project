@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { API_URL } from '../config/api';
 
 const SeatMap = ({ showtimeId, price, onSeatSelect, selectedSeats }) => {
     // Mock 10x10 grid
@@ -13,7 +14,7 @@ const SeatMap = ({ showtimeId, price, onSeatSelect, selectedSeats }) => {
             setLoading(true);
             try {
                 // Fetch booked seats for this showtime
-                const res = await fetch(`http://localhost:5000/api/showtimes/${showtimeId}/seats`);
+                const res = await fetch(`${API_URL}/api/showtimes/${showtimeId}/seats`);
                 const data = await res.json();
                 setBookedSeats(data);
             } catch (err) {

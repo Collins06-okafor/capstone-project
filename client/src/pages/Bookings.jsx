@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config/api';
 
 const Bookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -9,7 +10,7 @@ const Bookings = () => {
         const fetchBookings = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await axios.get('http://localhost:5000/api/bookings', {
+                const res = await axios.get(`${API_URL}/api/bookings`, {
                     headers: { 'x-auth-token': token }
                 });
                 setBookings(res.data);
@@ -81,7 +82,7 @@ const Bookings = () => {
                                                 if (!window.confirm('Cancel this booking?')) return;
                                                 try {
                                                     const token = localStorage.getItem('token');
-                                                    await axios.put(`http://localhost:5000/api/bookings/${booking.id}/cancel`, {}, { headers: { 'x-auth-token': token } });
+                                                    await axios.put(`${API_URL}/api/bookings/${booking.id}/cancel`, {}, { headers: { 'x-auth-token': token } });
                                                     alert('Booking Cancelled');
                                                     // Ideally refetch or update state, for now simple reload or manual state update:
                                                     window.location.reload();

@@ -4,6 +4,7 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import SeatMap from '../components/SeatMap';
 import { ToastContext } from '../context/ToastContext';
+import { API_URL } from '../config/api';
 
 // Payment Modal Component
 const PaymentModal = ({ show, onClose, onConfirm, amount }) => {
@@ -76,9 +77,9 @@ const MovieDetail = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const movieRes = await axios.get(`http://localhost:5000/api/movies/${id}`);
+                const movieRes = await axios.get(`${API_URL}/api/movies/${id}`);
                 setMovie(movieRes.data);
-                const showRes = await axios.get(`http://localhost:5000/api/movies/${id}/showtimes`);
+                const showRes = await axios.get(`${API_URL}/api/movies/${id}/showtimes`);
                 setShowtimes(showRes.data);
             } catch (err) {
                 console.error(err);
@@ -123,7 +124,7 @@ const MovieDetail = () => {
             const totalAmount = selectedSeats.length * parseFloat(selectedShowtime.price);
 
             await axios.post(
-                'http://localhost:5000/api/bookings',
+                `${API_URL}/api/bookings`,
                 {
                     showtime_id: selectedShowtime.id,
                     seats: selectedSeats,
@@ -276,7 +277,7 @@ const ReviewsSection = ({ movieId }) => {
 
     const fetchReviews = async () => {
         try {
-            const res = await axios.get(`http://localhost:5000/api/reviews/${movieId}`);
+            const res = await axios.get(`${API_URL}/api/reviews/${movieId}`);
             setReviews(res.data);
         } catch (err) {
             console.error(err);
@@ -295,7 +296,7 @@ const ReviewsSection = ({ movieId }) => {
         }
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/reviews',
+            await axios.post(`${API_URL}/api/reviews`,
                 { movie_id: movieId, rating, review_text: comment },
                 { headers: { 'x-auth-token': token } }
             );
