@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 const auth = require('../middleware/auth');
+const { sendBookingConfirmation } = require('../utils/emailService');
 
 // Create booking (Protected)
 router.post('/', auth, async (req, res) => {
@@ -15,10 +16,6 @@ router.post('/', auth, async (req, res) => {
     try {
         // Generate simple references
         const bookingReference = 'REF-' + Date.now();
-
-        // JSON.stringify(seats) if it comes as array, or ensure it is compatible with jsonb
-        // Postgres node driver handles JS objects to JSONB automatically often, but explicit stringify might be creating double quotes if not careful.
-        // 'pg' library treats JSON objects as JSON.
         const seatsData = JSON.stringify(seats);
 
         const newBooking = await pool.query(
@@ -26,7 +23,37 @@ router.post('/', auth, async (req, res) => {
             [req.user.id, showtime_id, seatsData, total_amount, 'confirmed', 'paid', bookingReference]
         );
 
-        res.json(newBooking.rows[0]);
+        const bookingObj = newBooking.rows[0];
+
+        // Fetch context for confirmation email
+        try {
+            const detailRes = await pool.query(`
+                SELECT b.booking_reference, b.total_amount, b.seats,
+                       m.title, s.show_date, s.show_time, u.email
+                FROM bookings b
+                JOIN showtimes s ON b.showtime_id = s.id
+                JOIN movies m ON s.movie_id = m.id
+                JOIN users u ON b.user_id = u.id
+                WHERE b.id = $1
+            `, [bookingObj.id]);
+
+            if (detailRes.rows.length > 0) {
+                const info = detailRes.rows[0];
+                // Send email asynchronously so we don't block the user response
+                sendBookingConfirmation(info.email, {
+                    title: info.title,
+                    show_date: info.show_date,
+                    show_time: info.show_time,
+                    seats: seats, // Use the original array from req.body
+                    total_amount: info.total_amount,
+                    booking_reference: info.booking_reference
+                }).catch(e => console.error('Background Email Error:', e));
+            }
+        } catch (emailErr) {
+            console.error('Failed to prepare confirmation email:', emailErr);
+        }
+
+        res.json(bookingObj);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

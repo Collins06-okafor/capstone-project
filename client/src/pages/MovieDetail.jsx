@@ -22,39 +22,47 @@ const PaymentModal = ({ show, onClose, onConfirm, amount }) => {
     };
 
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.8)', zIndex: 1000,
-            display: 'flex', justifyContent: 'center', alignItems: 'center'
-        }}>
-            <div className="glass-card fade-in-up" style={{ width: '400px', maxWidth: '90%', background: '#1a1a2e', border: '1px solid var(--color-primary)' }}>
-                <h2 className="text-gold text-center" style={{ marginBottom: '20px' }}>Checkout</h2>
-                <div style={{ marginBottom: '20px', textAlign: 'center' }}>
-                    <p style={{ color: '#ccc' }}>Total Amount</p>
-                    <h1 style={{ fontSize: '3rem', margin: 0 }}>${amount.toFixed(2)}</h1>
+        <div className="payment-modal-overlay">
+            <div className="auth-card" style={{ maxWidth: '440px', padding: '2.5rem' }}>
+                <h2 className="text-gold text-center" style={{ marginBottom: '1.5rem', fontSize: '1.8rem' }}>Express Checkout</h2>
+
+                {/* Visual Card Preview */}
+                <div className="payment-card-visual">
+                    <div className="card-chip"></div>
+                    <div className="card-number-display">•••• •••• •••• 4242</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                        <div>
+                            <div className="payment-input-label" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2px' }}>Card Holder</div>
+                            <div style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Sardor Ergashev</div>
+                        </div>
+                        <div>
+                            <div className="payment-input-label" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2px' }}>Expires</div>
+                            <div style={{ fontSize: '0.9rem' }}>12/28</div>
+                        </div>
+                    </div>
                 </div>
 
                 <form onSubmit={handlePay}>
-                    <div style={{ marginBottom: '15px' }}>
-                        <label style={{ color: '#aaa', fontSize: '0.8rem' }}>Card Number</label>
-                        <input type="text" placeholder="0000 0000 0000 0000" defaultValue="4242 4242 4242 4242" required style={{ background: 'rgba(255,255,255,0.05)' }} />
+                    <div className="payment-input-group">
+                        <label className="payment-input-label">Card Number</label>
+                        <input type="text" className="payment-input" placeholder="0000 0000 0000 0000" defaultValue="4242 4242 4242 4242" required />
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '20px' }}>
-                        <div>
-                            <label style={{ color: '#aaa', fontSize: '0.8rem' }}>Expiry</label>
-                            <input type="text" placeholder="MM/YY" defaultValue="12/25" required style={{ background: 'rgba(255,255,255,0.05)' }} />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+                        <div className="payment-input-group" style={{ marginBottom: 0 }}>
+                            <label className="payment-input-label">Expiry Date</label>
+                            <input type="text" className="payment-input" placeholder="MM/YY" defaultValue="12/28" required />
                         </div>
-                        <div>
-                            <label style={{ color: '#aaa', fontSize: '0.8rem' }}>CVC</label>
-                            <input type="text" placeholder="123" defaultValue="123" required style={{ background: 'rgba(255,255,255,0.05)' }} />
+                        <div className="payment-input-group" style={{ marginBottom: 0 }}>
+                            <label className="payment-input-label">CVC / CVV</label>
+                            <input type="password" className="payment-input" placeholder="•••" defaultValue="123" required />
                         </div>
                     </div>
 
-                    <button type="submit" className="btn" style={{ width: '100%', padding: '15px', opacity: processing ? 0.7 : 1 }} disabled={processing}>
-                        {processing ? 'Processing Payment...' : `Pay $${amount.toFixed(2)}`}
+                    <button type="submit" className="btn" style={{ width: '100%', marginBottom: '1rem' }} disabled={processing}>
+                        {processing ? 'Authorizing...' : `Confirm Payment: $${amount.toFixed(2)}`}
                     </button>
-                    <button type="button" onClick={onClose} style={{ width: '100%', padding: '10px', marginTop: '10px', background: 'transparent', border: 'none', color: '#aaa', cursor: 'pointer' }} disabled={processing}>
-                        Cancel
+                    <button type="button" className="auth-link" onClick={onClose} style={{ display: 'block', margin: '0 auto', fontSize: '0.9rem', background: 'none', border: 'none' }} disabled={processing}>
+                        Go Back
                     </button>
                 </form>
             </div>
@@ -73,6 +81,33 @@ const MovieDetail = () => {
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [selectedShowtime, setSelectedShowtime] = useState(null);
     const [showPayment, setShowPayment] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+
+    // Group showtimes by date
+    const uniqueDates = [...new Set(showtimes.map(st => new Date(st.show_date).toDateString()))];
+
+    // Sort dates
+    uniqueDates.sort((a, b) => new Date(a) - new Date(b));
+
+    // Select first date by default
+    useEffect(() => {
+        if (uniqueDates.length > 0 && !selectedDate) {
+            setSelectedDate(uniqueDates[0]);
+        }
+    }, [uniqueDates, selectedDate]);
+
+    const getDayLabel = (dateStr) => {
+        const date = new Date(dateStr);
+        const today = new Date();
+        const tomorrow = new Date(today);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        if (date.toDateString() === today.toDateString()) return 'Today';
+        if (date.toDateString() === tomorrow.toDateString()) return 'Tomorrow';
+        return date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    };
+
+    const filteredShowtimes = showtimes.filter(st => new Date(st.show_date).toDateString() === selectedDate);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -145,8 +180,10 @@ const MovieDetail = () => {
     if (loading) return <div className="loading-spinner"></div>;
     if (!movie) return <div className="text-center mt-2">Movie not found</div>;
 
+    const posterUrl = movie.poster_url?.startsWith('http') ? movie.poster_url : `${API_URL}${movie.poster_url}`;
+
     return (
-        <div className="fade-in">
+        <div className="fade-in-up">
             {/* Payment Modal */}
             <PaymentModal
                 show={showPayment}
@@ -166,7 +203,7 @@ const MovieDetail = () => {
             }}>
                 <div style={{
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundImage: `url(${movie.poster_url})`,
+                    backgroundImage: `url(${movie.poster_url && movie.poster_url.startsWith('http') ? movie.poster_url : `${API_URL}${movie.poster_url}`})`,
                     backgroundSize: 'cover',
                     backgroundPosition: 'top',
                     filter: 'blur(10px) brightness(0.4)'
@@ -179,7 +216,7 @@ const MovieDetail = () => {
                     padding: '2rem',
                     gap: '2rem'
                 }}>
-                    <img src={movie.poster_url} alt={movie.title} style={{ height: '300px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }} />
+                    <img src={movie.poster_url && movie.poster_url.startsWith('http') ? movie.poster_url : `${API_URL}${movie.poster_url}`} alt={movie.title} style={{ height: '300px', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }} />
                     <div>
                         <h1 style={{ fontSize: '3rem', marginBottom: '0.5rem', textShadow: '0 2px 5px rgba(0,0,0,0.5)' }}>{movie.title}</h1>
                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1rem', color: '#ccc' }}>
@@ -195,8 +232,31 @@ const MovieDetail = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
                 <div className="glass-card">
                     <h3 className="text-gold" style={{ marginBottom: '1.5rem' }}>Select Showtime</h3>
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '5px' }}>
+                        {uniqueDates.map(dateStr => (
+                            <button
+                                key={dateStr}
+                                onClick={() => {
+                                    setSelectedDate(dateStr);
+                                    setSelectedShowtime(null);
+                                    setSelectedSeats([]);
+                                }}
+                                className="btn"
+                                style={{
+                                    background: selectedDate === dateStr ? 'var(--color-primary)' : 'rgba(255,255,255,0.05)',
+                                    color: selectedDate === dateStr ? '#000' : '#aaa',
+                                    border: selectedDate === dateStr ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                                    padding: '8px 16px',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                {getDayLabel(dateStr)}
+                            </button>
+                        ))}
+                    </div>
+
                     <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '2rem' }}>
-                        {showtimes.map(st => (
+                        {filteredShowtimes.map(st => (
                             <button
                                 key={st.id}
                                 onClick={() => {
@@ -210,11 +270,11 @@ const MovieDetail = () => {
                                     border: 'none'
                                 }}
                             >
-                                {new Date(st.show_date).toLocaleDateString()} <br />
                                 <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>{st.show_time.substring(0, 5)}</span>
                             </button>
                         ))}
                     </div>
+                    {filteredShowtimes.length === 0 && <p style={{ color: '#aaa' }}>No showtimes for this date.</p>}
                     {showtimes.length === 0 && <p>No showtimes available.</p>}
 
                     {selectedShowtime && (
@@ -294,6 +354,10 @@ const ReviewsSection = ({ movieId }) => {
             addToast('Login to review', 'error');
             return;
         }
+        if (!comment.trim()) {
+            addToast('Please enter a comment', 'error');
+            return;
+        }
         try {
             const token = localStorage.getItem('token');
             await axios.post(`${API_URL}/api/reviews`,
@@ -301,6 +365,7 @@ const ReviewsSection = ({ movieId }) => {
                 { headers: { 'x-auth-token': token } }
             );
             setComment('');
+            setRating(5);
             addToast('Review submitted!', 'success');
             fetchReviews();
         } catch (err) {
@@ -309,60 +374,74 @@ const ReviewsSection = ({ movieId }) => {
     };
 
     return (
-        <div style={{ marginTop: '40px', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '40px' }}>
-            <h3 className="text-gold" style={{ marginBottom: '20px' }}>Reviews & Ratings</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <div className="reviews-container">
+            <h2 className="text-gold" style={{ marginBottom: '3rem', fontSize: '2rem' }}>Viewer <span style={{ color: '#fff' }}>Reviews</span></h2>
+
+            <div className="review-grid">
+                <div className="review-list">
                     {reviews.map(r => (
-                        <div key={r.id} className="glass-card" style={{ padding: '1.5rem', marginBottom: '1rem', background: 'rgba(255,255,255,0.02)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                                <strong>{r.first_name} {r.last_name}</strong>
-                                <span style={{ color: 'var(--color-primary)' }}>{'★'.repeat(r.rating)}</span>
+                        <div key={r.id} className="review-card">
+                            <div className="review-header">
+                                <span className="review-author">{r.first_name} {r.last_name}</span>
+                                <span className="review-stars">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>
                             </div>
-                            <p style={{ color: '#ccc', fontStyle: 'italic', marginBottom: '0.5rem' }}>"{r.review_text}"</p>
-                            <small style={{ color: '#666' }}>{new Date(r.created_at).toLocaleDateString()}</small>
+                            <p className="review-text">"{r.review_text}"</p>
+                            <div className="review-date">{new Date(r.created_at).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</div>
                         </div>
                     ))}
-                    {reviews.length === 0 && <p className="text-muted">No reviews yet. Be the first!</p>}
+                    {reviews.length === 0 && (
+                        <div className="glass-card" style={{ padding: '3rem', textAlign: 'center' }}>
+                            <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>No reviews yet. Be the first to share your experience!</p>
+                        </div>
+                    )}
                 </div>
 
-                {user ? (
-                    <div className="glass-card">
-                        <h4 style={{ marginBottom: '1rem' }}>Write a Review</h4>
-                        <form onSubmit={handleSubmit}>
-                            <div style={{ marginBottom: '1rem' }}>
-                                <label style={{ display: 'block', marginBottom: '5px' }}>Rating</label>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    {[1, 2, 3, 4, 5].map(n => (
-                                        <div
-                                            key={n}
-                                            onClick={() => setRating(n)}
-                                            style={{
-                                                cursor: 'pointer',
-                                                fontSize: '1.5rem',
-                                                color: n <= rating ? 'var(--color-primary)' : '#444'
-                                            }}
-                                        >
-                                            ★
-                                        </div>
-                                    ))}
+                <div className="review-form-container">
+                    {user ? (
+                        <div className="auth-card" style={{ padding: '2.5rem' }}>
+                            <h3 className="review-form-title">
+                                <span className="text-gold">★</span> Write a Review
+                            </h3>
+                            <form onSubmit={handleSubmit}>
+                                <div className="auth-form-group">
+                                    <label className="auth-label">Rating</label>
+                                    <div className="star-rating-input">
+                                        {[1, 2, 3, 4, 5].map(n => (
+                                            <button
+                                                key={n}
+                                                type="button"
+                                                onClick={() => setRating(n)}
+                                                className={`star-btn ${n <= rating ? 'active' : 'inactive'}`}
+                                            >
+                                                ★
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
-                            <textarea
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                placeholder="Share your thoughts about the movie..."
-                                style={{ width: '100%', height: '100px', resize: 'none' }}
-                            />
-                            <button type="submit" className="btn" style={{ marginTop: '10px', width: '100%' }}>Submit Review</button>
-                        </form>
-                    </div>
-                ) : (
-                    <div className="glass-card flex-center" style={{ flexDirection: 'column', textAlign: 'center' }}>
-                        <p>Please login to leave a review.</p>
-                        <button className="btn mt-2" onClick={() => navigate('/login')}>Login Now</button>
-                    </div>
-                )}
+                                <div className="auth-form-group">
+                                    <label className="auth-label">Your Impression</label>
+                                    <textarea
+                                        value={comment}
+                                        onChange={(e) => setComment(e.target.value)}
+                                        placeholder="What did you think of the cinematography, plot, and performance?"
+                                        className="review-textarea"
+                                    />
+                                </div>
+                                <button type="submit" className="btn" style={{ width: '100%' }}>
+                                    Post Review
+                                </button>
+                            </form>
+                        </div>
+                    ) : (
+                        <div className="auth-card" style={{ padding: '3rem', textAlign: 'center' }}>
+                            <h3 style={{ marginBottom: '1rem' }}>Join the Conversation</h3>
+                            <p className="text-muted" style={{ marginBottom: '2rem' }}>Please log in to share your thoughts with the community.</p>
+                            <button className="btn" style={{ width: '100%' }} onClick={() => navigate('/login')}>
+                                Sign In to Review
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

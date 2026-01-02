@@ -20,38 +20,44 @@ const Login = () => {
     };
 
     return (
-        <div className="auth-container fade-in-up">
+        <div className="auth-container">
             <div className="auth-card">
-                <h1 className="text-center" style={{ marginBottom: '2rem', color: 'var(--color-primary)' }}>Welcome Back</h1>
-                {error && <div style={{ background: 'rgba(255,0,0,0.1)', color: '#ff4444', padding: '10px', borderRadius: '4px', marginBottom: '1rem', textAlign: 'center' }}>{error}</div>}
+                <h1 className="text-center" style={{ marginBottom: '2.5rem', fontSize: '2.2rem' }}>
+                    Welcome <span className="text-gold">Back</span>
+                </h1>
+
+                {error && <div className="error-banner">{error}</div>}
 
                 <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: '1.5rem' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: '#ccc' }}>Email Address</label>
+                    <div className="auth-form-group">
+                        <label className="auth-label">Email Address</label>
                         <input
                             type="email"
+                            className="auth-input"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            placeholder="you@example.com"
-                            style={{ background: 'rgba(0,0,0,0.2)' }}
+                            placeholder="name@example.com"
                         />
                     </div>
-                    <div style={{ marginBottom: '2rem' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', color: '#ccc' }}>Password</label>
+                    <div className="auth-form-group" style={{ marginBottom: '2.5rem' }}>
+                        <label className="auth-label">Password</label>
                         <input
                             type="password"
+                            className="auth-input"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             placeholder="••••••••"
-                            style={{ background: 'rgba(0,0,0,0.2)' }}
                         />
                     </div>
-                    <button type="submit" className="btn" style={{ width: '100%', padding: '15px' }}>Sign In</button>
 
-                    <p className="text-center" style={{ marginTop: '1.5rem', fontSize: '0.9rem' }}>
-                        Don't have an account? <span style={{ color: 'var(--color-primary)', cursor: 'pointer' }} onClick={() => navigate('/register')}>Register here</span>
+                    <button type="submit" className="btn" style={{ width: '100%' }}>
+                        Sign In
+                    </button>
+
+                    <p className="auth-footer-text">
+                        Don't have an account? <span className="auth-link" onClick={() => navigate('/register')}>Join the club</span>
                     </p>
                 </form>
             </div>

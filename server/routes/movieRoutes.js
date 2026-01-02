@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
 
         if (search) {
             query += ` AND title ILIKE $${paramCount} `;
-            values.push(`% ${search}% `);
+            values.push(`%${search}%`);
             paramCount++;
         }
 
@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
             // If mixed case, might want ILIKE, but genre usually categorical.
             // Check if 'genre' column exists effectively.
             query += ` AND genre ILIKE $${paramCount} `;
-            values.push(`% ${genre}% `);
+            values.push(`%${genre}%`);
             paramCount++;
         }
 
@@ -59,12 +59,16 @@ router.post('/', auth, async (req, res) => {
         return res.status(403).json({ msg: 'Access denied' });
     }
 
-    const { title, genre, playlist_url, release_date, poster_url, description, duration_min } = req.body;
+    let { title, genre, playlist_url, release_date, end_date, poster_url, description, duration_min } = req.body;
+
+    // Sanitize dates: empty string to null
+    release_date = release_date || null;
+    end_date = end_date || null;
 
     try {
         const result = await pool.query(
-            'INSERT INTO movies (title, description, genre, release_date, poster_url, duration) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *',
-            [title, description, genre, release_date, poster_url, duration_min]
+            'INSERT INTO movies (title, description, genre, release_date, end_date, poster_url, duration) VALUES ($1, $2, $3, COALESCE($4, NOW()), $5, $6, $7) RETURNING *',
+            [title, description, genre, release_date, end_date, poster_url, duration_min]
         );
         res.json(result.rows[0]);
     } catch (err) {
@@ -76,11 +80,15 @@ router.post('/', auth, async (req, res) => {
 // Update movie
 router.put('/:id', auth, async (req, res) => {
     if (req.user.role !== 'admin' && req.user.role !== 'super_admin') return res.status(403).json({ msg: 'Access denied' });
-    const { title, genre, description, duration_min, poster_url } = req.body;
+    let { title, genre, description, duration_min, poster_url, release_date, end_date } = req.body;
+
+    // Sanitize dates: empty string to null
+    release_date = release_date || null;
+    end_date = end_date || null;
     try {
         const result = await pool.query(
-            'UPDATE movies SET title=$1, genre=$2, description=$3, duration=$4, poster_url=$5 WHERE id=$6 RETURNING *',
-            [title, genre, description, duration_min, poster_url, req.params.id]
+            'UPDATE movies SET title=$1, genre=$2, description=$3, duration=$4, poster_url=$5, release_date=$6, end_date=$7 WHERE id=$8 RETURNING *',
+            [title, genre, description, duration_min, poster_url, release_date, end_date, req.params.id]
         );
         res.json(result.rows[0]);
     } catch (err) {

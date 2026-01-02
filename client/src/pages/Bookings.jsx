@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../config/api';
+import { QRCodeSVG } from 'qrcode.react';
 
 const Bookings = () => {
     const [bookings, setBookings] = useState([]);
@@ -61,40 +62,25 @@ const Bookings = () => {
                                         {Array.isArray(booking.seats) ? booking.seats.join(', ') : booking.seats}
                                     </div>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
-                                    {booking.booking_status !== 'cancelled' && (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div style={{ width: 60, height: 60, background: '#fff', padding: 5 }}>
-                                                <div style={{ width: '100%', height: '100%', background: '#000', opacity: 0.8 }}></div>
-                                            </div>
-                                            <div style={{ fontSize: '0.8rem', color: '#aaa', maxWidth: '120px' }}>
-                                                Scan for entry.
-                                            </div>
+                                {booking.booking_status !== 'cancelled' && (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <div style={{ background: '#fff', padding: 5, borderRadius: '4px' }}>
+                                            <QRCodeSVG
+                                                value={booking.booking_reference || booking.id.toString()}
+                                                size={80}
+                                                level={"H"}
+                                                includeMargin={false}
+                                            />
                                         </div>
-                                    )}
+                                        <div style={{ fontSize: '0.8rem', color: '#aaa', maxWidth: '120px' }}>
+                                            Scan for entry.
+                                        </div>
+                                    </div>
+                                )}
 
-                                    {booking.booking_status !== 'cancelled' ? (
-                                        <button
-                                            className="btn btn-danger"
-                                            style={{ padding: '5px 10px', fontSize: '0.8rem', alignSelf: 'flex-end' }}
-                                            onClick={async () => {
-                                                if (!window.confirm('Cancel this booking?')) return;
-                                                try {
-                                                    const token = localStorage.getItem('token');
-                                                    await axios.put(`${API_URL}/api/bookings/${booking.id}/cancel`, {}, { headers: { 'x-auth-token': token } });
-                                                    alert('Booking Cancelled');
-                                                    // Ideally refetch or update state, for now simple reload or manual state update:
-                                                    window.location.reload();
-                                                } catch (e) { console.error(e); alert('Failed'); }
-                                            }}
-                                        >
-                                            Cancel
-                                        </button>
-                                    ) : (
-                                        <div style={{ color: 'red', fontWeight: 'bold', border: '1px solid red', padding: '5px' }}>REFUNDED</div>
-                                    )}
-                                </div>
+                                {booking.booking_status === 'cancelled' && (
+                                    <div style={{ color: 'red', fontWeight: 'bold', border: '1px solid red', padding: '5px' }}>REFUNDED</div>
+                                )}
                             </div>
                         </div>
                     ))}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import Home from './pages/Home';
@@ -18,30 +18,51 @@ const PrivateRoute = ({ children }) => {
   return children;
 };
 
-// Navigation Component
 const Navbar = () => {
   const { user, logout } = React.useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   return (
     <nav className="navbar">
       <div className="container nav-container">
-        <Link to="/" className="nav-logo">HiMovie 🍿</Link>
+        <Link to="/" className="nav-logo">
+          HI<span style={{ color: 'var(--color-primary)' }}>MOVIE</span>
+        </Link>
         <div className="nav-links">
-          <Link to="/" className="nav-link">Home</Link>
+          <Link to="/" className="nav-link">Catalog</Link>
           {user ? (
             <>
-              <Link to="/bookings" className="nav-link">My Bookings</Link>
-              {user.role === 'admin' && <Link to="/admin" className="nav-link">Admin</Link>}
-              <Link to="/profile" className="nav-link" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span style={{ width: 25, height: 25, background: 'var(--color-primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#000', fontSize: '0.8rem', fontWeight: 'bold' }}>
+              <Link to="/bookings" className="nav-link">Bookings</Link>
+              {user.role === 'admin' && (
+                <Link to="/admin" className="nav-link" style={{ color: 'var(--color-primary)' }}>
+                  Admin
+                </Link>
+              )}
+
+              <div className="nav-separator"></div>
+
+              <Link to="/profile" className="nav-profile">
+                <div className="nav-profile-avatar">
                   {user.first_name[0]}
-                </span>
-                Profile
+                </div>
+                <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>Profile</span>
               </Link>
+
+              <button onClick={handleLogout} className="btn-signout">
+                Sign Out
+              </button>
             </>
           ) : (
             <>
-              <Link to="/login" className="nav-link">Login</Link>
-              <Link to="/register" className="btn" style={{ padding: '0.5rem 1rem' }}>Register</Link>
+              <Link to="/login" className="nav-link">Sign In</Link>
+              <Link to="/register" className="btn" style={{ padding: '10px 24px', borderRadius: 'var(--radius-full)' }}>
+                Get Started
+              </Link>
             </>
           )}
         </div>
@@ -50,30 +71,49 @@ const Navbar = () => {
   );
 };
 
-// Footer Component
 const Footer = () => (
-  <footer style={{ background: 'rgba(0,0,0,0.5)', padding: '2rem 1rem', marginTop: 'auto', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-    <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
-      <div>
-        <h3 className="text-gold" style={{ fontSize: '1.2rem' }}>HiMovie 🍿</h3>
-        <p style={{ fontSize: '0.9rem' }}>The best place to book your tickets for the latest blockbusters.</p>
+  <footer className="footer">
+    <div className="container">
+      <div className="footer-grid">
+        <div>
+          <h3 className="nav-logo" style={{ marginBottom: '1.5rem', fontSize: '1.5rem' }}>HIMOVIE</h3>
+          <p className="footer-text">
+            Experience the future of cinema booking. Premium features, seamless interface, and the best movies curated just for you.
+          </p>
+        </div>
+        <div>
+          <h4 className="footer-heading">Explore</h4>
+          <ul className="footer-links">
+            <li><Link to="/" className="footer-link">Catalog</Link></li>
+            <li><Link to="/bookings" className="footer-link">My Tickets</Link></li>
+            <li><Link to="/profile" className="footer-link">Profile Settings</Link></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="footer-heading">Support</h4>
+          <ul className="footer-links">
+            <li><a href="#" className="footer-link">Help Center</a></li>
+            <li><a href="#" className="footer-link">Terms of Service</a></li>
+            <li><a href="#" className="footer-link">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="footer-heading">Newsletter</h4>
+          <p className="footer-text" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>Get the latest updates on blockbusters and special screenings.</p>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <input type="email" placeholder="Your email" className="footer-newsletter-input" />
+            <button className="btn" style={{ padding: '10px' }}>Join</button>
+          </div>
+        </div>
       </div>
-      <div>
-        <h4 style={{ fontSize: '1rem', color: '#fff' }}>Quick Links</h4>
-        <ul style={{ fontSize: '0.9rem', color: '#aaa' }}>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/bookings">My Bookings</Link></li>
-          <li><Link to="/login">Login</Link></li>
-        </ul>
+      <div className="footer-bottom">
+        <p>&copy; {new Date().getFullYear()} HiMovie Premium Cinema. All rights reserved.</p>
+        <div className="footer-socials">
+          <span className="footer-link footer-social-link">Instagram</span>
+          <span className="footer-link footer-social-link">Twitter</span>
+          <span className="footer-link footer-social-link">Facebook</span>
+        </div>
       </div>
-      <div>
-        <h4 style={{ fontSize: '1rem', color: '#fff' }}>Contact</h4>
-        <p style={{ fontSize: '0.9rem' }}>support@himovie.com</p>
-        <p style={{ fontSize: '0.9rem' }}>+1 (555) 123-4567</p>
-      </div>
-    </div>
-    <div className="text-center" style={{ marginTop: '2rem', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', fontSize: '0.8rem', color: '#666' }}>
-      &copy; {new Date().getFullYear()} HiMovie Inc. All rights reserved.
     </div>
   </footer>
 );
@@ -83,9 +123,9 @@ function App() {
     <AuthProvider>
       <ToastProvider>
         <Router>
-          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
             <Navbar />
-            <div className="container" style={{ marginTop: '2rem', paddingBottom: '2rem', flex: 1 }}>
+            <div className="container" style={{ paddingTop: '3rem', paddingBottom: '6rem', flex: 1 }}>
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<Login />} />
@@ -104,6 +144,14 @@ function App() {
                   element={
                     <PrivateRoute>
                       <AdminDashboard />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <PrivateRoute>
+                      <Profile />
                     </PrivateRoute>
                   }
                 />

@@ -9,7 +9,7 @@ const AdminDashboard = () => {
     const navigate = useNavigate();
     const [movies, setMovies] = useState([]);
     const [formData, setFormData] = useState({
-        title: '', genre: '', description: '', duration_min: '', poster_url: '', release_date: ''
+        title: '', genre: '', description: '', duration_min: '', poster_url: '', release_date: '', end_date: ''
     });
     const [editingId, setEditingId] = useState(null);
 
@@ -29,7 +29,7 @@ const AdminDashboard = () => {
         }
     };
 
-    const [stats, setStats] = useState({ users: 0, movies: 0, bookings: 0, revenue: 0 });
+    const [stats, setStats] = useState({ users: 0, movies: 0, bookings: 0, revenue: 0, movieStats: [], dailyStats: [] });
     const [activeAdminTab, setActiveAdminTab] = useState('movies');
     const [usersList, setUsersList] = useState([]);
 
@@ -78,7 +78,7 @@ const AdminDashboard = () => {
                 await axios.post(`${API_URL}/api/movies`, formData, config);
                 alert('Movie Created');
             }
-            setFormData({ title: '', genre: '', description: '', duration_min: '', poster_url: '', release_date: '' });
+            setFormData({ title: '', genre: '', description: '', duration_min: '', poster_url: '', release_date: '', end_date: '' });
             setEditingId(null);
             fetchMovies();
         } catch (err) {
@@ -94,7 +94,9 @@ const AdminDashboard = () => {
             description: movie.description || '',
             duration_min: movie.duration || movie.duration_min || '',
             poster_url: movie.poster_url || '',
-            release_date: movie.release_date ? movie.release_date.substring(0, 10) : ''
+            poster_url: movie.poster_url || '',
+            release_date: movie.release_date ? movie.release_date.substring(0, 10) : '',
+            end_date: movie.end_date ? movie.end_date.substring(0, 10) : ''
         });
         setEditingId(movie.id);
     };
@@ -114,7 +116,7 @@ const AdminDashboard = () => {
     const [showtimeModalOpen, setShowtimeModalOpen] = useState(false);
     const [selectedMovieForShowtime, setSelectedMovieForShowtime] = useState(null);
     const [showtimes, setShowtimes] = useState([]);
-    const [showtimeForm, setShowtimeForm] = useState({ date: '', time: '', price: '' });
+    const [showtimeForm, setShowtimeForm] = useState({ start_date: '', end_date: '', time: '', price: '' });
 
     const openShowtimeManager = async (movie) => {
         setSelectedMovieForShowtime(movie);
@@ -133,19 +135,27 @@ const AdminDashboard = () => {
 
     const handleShowtimeSubmit = async (e) => {
         e.preventDefault();
+        const now = new Date();
+        const start = new Date(`${showtimeForm.start_date}T${showtimeForm.time}`);
+        if (start < now) {
+            alert('Cannot add a showtime in the past!');
+            return;
+        }
+
         try {
             const token = localStorage.getItem('token');
             await axios.post(`${API_URL}/api/showtimes`,
                 {
                     movie_id: selectedMovieForShowtime.id,
-                    show_date: showtimeForm.date,
+                    start_date: showtimeForm.start_date,
+                    end_date: showtimeForm.end_date,
                     show_time: showtimeForm.time,
                     price: showtimeForm.price
                 },
                 { headers: { 'x-auth-token': token } }
             );
             alert('Showtime Added');
-            setShowtimeForm({ date: '', time: '', price: '' });
+            setShowtimeForm({ start_date: '', end_date: '', time: '', price: '' });
             fetchShowtimes(selectedMovieForShowtime.id); // Refresh
         } catch (err) {
             console.error(err);
@@ -154,212 +164,396 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className="fade-in">
-            <h1 className="text-gold" style={{ marginBottom: '2rem' }}>Admin Dashboard</h1>
-
-            {/* Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '3rem' }}>
-                <div className="glass-card text-center">
-                    <h3 style={{ fontSize: '2.5rem', color: 'var(--color-primary)', margin: 0 }}>${stats.revenue}</h3>
-                    <p style={{ color: '#aaa' }}>Total Revenue</p>
+        <div className="fade-in-up container" style={{ paddingTop: '2rem', paddingBottom: '5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+                <div>
+                    <h1 className="text-gold" style={{ margin: 0 }}>Command Center</h1>
+                    <p style={{ color: 'var(--color-text-muted)', marginTop: '0.5rem' }}>Manage movies, users, and platform analytics</p>
                 </div>
-                <div className="glass-card text-center">
-                    <h3 style={{ fontSize: '2.5rem', color: '#fff', margin: 0 }}>{stats.bookings}</h3>
-                    <p style={{ color: '#aaa' }}>Total Bookings</p>
-                </div>
-                <div className="glass-card text-center">
-                    <h3 style={{ fontSize: '2.5rem', color: '#fff', margin: 0 }}>{stats.users}</h3>
-                    <p style={{ color: '#aaa' }}>Registered Users</p>
-                </div>
-                <div className="glass-card text-center">
-                    <h3 style={{ fontSize: '2.5rem', color: '#fff', margin: 0 }}>{stats.movies}</h3>
-                    <p style={{ color: '#aaa' }}>active Movies</p>
+                <div style={{ padding: '10px 20px', background: 'var(--glass-bg)', borderRadius: 'var(--radius-md)', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: 10, height: 10, background: '#2ecc71', borderRadius: '50%', boxShadow: '0 0 10px #2ecc71' }}></div>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Admin: {user?.first_name}</span>
                 </div>
             </div>
 
-            {/* Tabs */}
-            <div style={{ marginBottom: '2rem', display: 'flex', gap: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                <button onClick={() => setActiveAdminTab('movies')} className="btn" style={{ background: activeAdminTab === 'movies' ? 'var(--color-primary)' : 'transparent', color: activeAdminTab === 'movies' ? '#000' : '#fff', border: 'none', borderRadius: '0' }}>Manage Movies</button>
-                <button onClick={() => setActiveAdminTab('users')} className="btn" style={{ background: activeAdminTab === 'users' ? 'var(--color-primary)' : 'transparent', color: activeAdminTab === 'users' ? '#000' : '#fff', border: 'none', borderRadius: '0' }}>Manage Users</button>
+            {/* Stats Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '2rem', marginBottom: '4rem' }}>
+                <div className="glass-card" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '5rem', opacity: 0.05, transform: 'rotate(-15deg)' }}>💰</div>
+                    <p style={{ color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '1px', marginBottom: '0.5rem' }}>Total Revenue</p>
+                    <h3 style={{ fontSize: '2.5rem', margin: 0 }} className="text-gold">${stats.revenue?.toLocaleString()}</h3>
+                </div>
+                <div className="glass-card" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '5rem', opacity: 0.05, transform: 'rotate(-15deg)' }}>🎟️</div>
+                    <p style={{ color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '1px', marginBottom: '0.5rem' }}>Total Bookings</p>
+                    <h3 style={{ fontSize: '2.5rem', margin: 0 }}>{stats.bookings?.toLocaleString()}</h3>
+                </div>
+                <div className="glass-card" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '5rem', opacity: 0.05, transform: 'rotate(-15deg)' }}>👥</div>
+                    <p style={{ color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '1px', marginBottom: '0.5rem' }}>Users</p>
+                    <h3 style={{ fontSize: '2.5rem', margin: 0 }}>{stats.users?.toLocaleString()}</h3>
+                </div>
+                <div className="glass-card" style={{ padding: '2rem', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: '-20px', right: '-20px', fontSize: '5rem', opacity: 0.05, transform: 'rotate(-15deg)' }}>🎬</div>
+                    <p style={{ color: 'var(--color-text-muted)', textTransform: 'uppercase', fontSize: '0.75rem', fontWeight: '800', letterSpacing: '1px', marginBottom: '0.5rem' }}>Live Movies</p>
+                    <h3 style={{ fontSize: '2.5rem', margin: 0 }}>{stats.movies?.toLocaleString()}</h3>
+                </div>
+            </div>
+
+            {/* Modern Tabs */}
+            <div style={{
+                marginBottom: '3rem',
+                display: 'flex',
+                gap: '10px',
+                background: 'var(--glass-bg)',
+                padding: '6px',
+                borderRadius: 'var(--radius-md)',
+                width: 'fit-content',
+                border: '1px solid var(--glass-border)'
+            }}>
+                {['movies', 'users', 'analytics'].map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setActiveAdminTab(tab)}
+                        className={`btn ${activeAdminTab === tab ? '' : 'btn-secondary'}`}
+                        style={{
+                            padding: '10px 25px',
+                            fontSize: '0.9rem',
+                            borderRadius: 'calc(var(--radius-md) - 4px)',
+                            border: 'none',
+                            background: activeAdminTab === tab ? 'var(--color-primary)' : 'transparent',
+                            color: activeAdminTab === tab ? '#000' : 'var(--color-text-dim)'
+                        }}
+                    >
+                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                ))}
             </div>
 
             {activeAdminTab === 'users' ? (
-                <div className="glass-card">
-                    <h3>Registered Users</h3>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ddd', marginTop: '1rem' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left' }}>
-                                <th style={{ padding: '10px' }}>Name</th>
-                                <th style={{ padding: '10px' }}>Email</th>
-                                <th style={{ padding: '10px' }}>Role</th>
-                                <th style={{ padding: '10px', textAlign: 'right' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {usersList.map(u => (
-                                <tr key={u.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '15px 10px' }}>{u.first_name} {u.last_name}</td>
-                                    <td style={{ padding: '15px 10px' }}>{u.email}</td>
-                                    <td style={{ padding: '15px 10px' }}>
-                                        <span style={{
-                                            background: u.role === 'admin' ? 'var(--color-primary)' : 'rgba(255,255,255,0.1)',
-                                            color: u.role === 'admin' ? '#000' : '#fff',
-                                            padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem'
-                                        }}>
-                                            {u.role}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '15px 10px', textAlign: 'right' }}>
-                                        {u.role !== 'admin' && (
-                                            <button
-                                                onClick={async () => {
-                                                    if (!window.confirm('Delete this user?')) return;
-                                                    const token = localStorage.getItem('token');
-                                                    try {
-                                                        await axios.delete(`${API_URL}/api/admin/users/${u.id}`, { headers: { 'x-auth-token': token } });
-                                                        alert('User deleted');
-                                                        fetchStats(); // Using this to trigger re-fetch basically? Or create separate fetchUsers
-                                                        // Quick fix: reload or simple fetchUsers function
-                                                        const res = await axios.get(`${API_URL}/api/admin/users`, { headers: { 'x-auth-token': token } });
-                                                        setUsersList(res.data);
-                                                    } catch (e) { console.error(e); }
-                                                }}
-                                                className="btn btn-danger"
-                                                style={{ padding: '5px 10px', fontSize: '0.8rem' }}
-                                            >
-                                                Delete
-                                            </button>
-                                        )}
-                                    </td>
+                <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+                    <div style={{ padding: '2rem', borderBottom: '1px solid var(--glass-border)' }}>
+                        <h3 style={{ margin: 0 }}>User Management</h3>
+                    </div>
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+                            <thead>
+                                <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                    <th style={{ padding: '1.2rem 2rem', textAlign: 'left', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>User</th>
+                                    <th style={{ padding: '1.2rem 2rem', textAlign: 'left', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Email</th>
+                                    <th style={{ padding: '1.2rem 2rem', textAlign: 'left', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Role</th>
+                                    <th style={{ padding: '1.2rem 2rem', textAlign: 'right', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {usersList.map(u => (
+                                    <tr key={u.id} style={{ transition: 'var(--transition-smooth)' }} className="table-row-hover">
+                                        <td style={{ padding: '1.2rem 2rem' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div style={{ width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg, var(--color-primary), var(--color-secondary))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#000' }}>
+                                                    {u.first_name?.[0]}{u.last_name?.[0]}
+                                                </div>
+                                                <span style={{ fontWeight: '600' }}>{u.first_name} {u.last_name}</span>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '1.2rem 2rem', color: 'var(--color-text-dim)' }}>{u.email}</td>
+                                        <td style={{ padding: '1.2rem 2rem' }}>
+                                            <span style={{
+                                                background: u.role === 'admin' ? 'var(--color-primary)' : 'var(--glass-bg)',
+                                                color: u.role === 'admin' ? '#000' : 'var(--color-text-dim)',
+                                                padding: '4px 12px', borderRadius: 'var(--radius-sm)', fontSize: '0.75rem', fontWeight: 'bold',
+                                                border: '1px solid', borderColor: u.role === 'admin' ? 'var(--color-primary)' : 'var(--glass-border)'
+                                            }}>
+                                                {u.role.toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '1.2rem 2rem', textAlign: 'right' }}>
+                                            {u.role !== 'admin' && u.role !== 'super_admin' && (
+                                                <button
+                                                    onClick={async () => {
+                                                        if (!window.confirm('Delete this user permanently?')) return;
+                                                        const token = localStorage.getItem('token');
+                                                        try {
+                                                            await axios.delete(`${API_URL}/api/admin/users/${u.id}`, { headers: { 'x-auth-token': token } });
+                                                            const res = await axios.get(`${API_URL}/api/admin/users`, { headers: { 'x-auth-token': token } });
+                                                            setUsersList(res.data);
+                                                            fetchStats();
+                                                        } catch (e) { console.error(e); }
+                                                    }}
+                                                    className="btn btn-secondary"
+                                                    style={{ padding: '8px 16px', fontSize: '0.75rem', borderColor: 'rgba(231, 76, 60, 0.3)', color: '#e74c3c' }}
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            ) : activeAdminTab === 'analytics' ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '2.5rem' }}>
+                    <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+                        <div style={{ padding: '2rem', borderBottom: '1px solid var(--glass-border)' }}>
+                            <h3 style={{ margin: 0 }}>Movie Performance</h3>
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'left', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Title</th>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Bookings</th>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'right', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {stats.movieStats?.map((stat, idx) => (
+                                        <tr key={idx} style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                                            <td style={{ padding: '1.2rem 2rem', fontWeight: 'bold' }}>{stat.title}</td>
+                                            <td style={{ padding: '1.2rem 2rem', textAlign: 'center' }}>{stat.total_bookings}</td>
+                                            <td style={{ padding: '1.2rem 2rem', textAlign: 'right', color: 'var(--color-primary)', fontWeight: 'bold' }}>${parseFloat(stat.total_revenue).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+                        <div style={{ padding: '2rem', borderBottom: '1px solid var(--glass-border)' }}>
+                            <h3 style={{ margin: 0 }}>Daily Trends</h3>
+                        </div>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'left', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Date</th>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Bookings</th>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'right', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Revenue</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {stats.dailyStats?.map((stat, idx) => (
+                                        <tr key={idx} style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                                            <td style={{ padding: '1.2rem 2rem', color: 'var(--color-text-dim)' }}>{new Date(stat.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</td>
+                                            <td style={{ padding: '1.2rem 2rem', textAlign: 'center' }}>{stat.total_bookings}</td>
+                                            <td style={{ padding: '1.2rem 2rem', textAlign: 'right', color: 'var(--color-primary)', fontWeight: 'bold' }}>${parseFloat(stat.total_revenue).toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
-                    {showtimeModalOpen && selectedMovieForShowtime && (
-                        <div style={{
-                            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                            background: 'rgba(0,0,0,0.8)', zIndex: 1000,
-                            display: 'flex', justifyContent: 'center', alignItems: 'center'
-                        }}>
-                            <div className="glass-card" style={{ width: '600px', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }}>
-                                <button
-                                    onClick={() => setShowtimeModalOpen(false)}
-                                    style={{ position: 'absolute', top: 10, right: 10, background: 'none', border: 'none', color: '#fff', fontSize: '1.5rem', cursor: 'pointer' }}
-                                >
-                                    &times;
-                                </button>
-                                <h2 style={{ marginBottom: '1rem' }}>Manage Showtimes: <span className="text-gold">{selectedMovieForShowtime.title}</span></h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 1fr) 2fr', gap: '3rem', alignItems: 'start' }}>
+                    <div className="glass-card" style={{ position: 'sticky', top: '120px' }}>
+                        <h3 className="text-gold" style={{ marginBottom: '2rem' }}>{editingId ? 'Update Masterpiece' : 'Add New Feature'}</h3>
+                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }} className="admin-form">
+                            <div>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase' }}>Movie Title</label>
+                                <input name="title" placeholder="e.g. Inception" value={formData.title} onChange={handleChange} required
+                                    style={{ width: '100%', padding: '12px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 'var(--radius-sm)', marginTop: '5px' }} />
+                            </div>
 
-                                <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                                    <h4>Add New Showtime</h4>
-                                    <form onSubmit={handleShowtimeSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '10px', alignItems: 'end' }}>
-                                        <div>
-                                            <label style={{ fontSize: '0.8rem', color: '#aaa' }}>Date</label>
-                                            <input type="date" required value={showtimeForm.date} onChange={e => setShowtimeForm({ ...showtimeForm, date: e.target.value })} />
-                                        </div>
-                                        <div>
-                                            <label style={{ fontSize: '0.8rem', color: '#aaa' }}>Time</label>
-                                            <input type="time" required value={showtimeForm.time} onChange={e => setShowtimeForm({ ...showtimeForm, time: e.target.value })} />
-                                        </div>
-                                        <div>
-                                            <label style={{ fontSize: '0.8rem', color: '#aaa' }}>Price ($)</label>
-                                            <input type="number" step="0.01" required value={showtimeForm.price} onChange={e => setShowtimeForm({ ...showtimeForm, price: e.target.value })} />
-                                        </div>
-                                        <button type="submit" className="btn">Add</button>
-                                    </form>
-                                </div>
-
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                                 <div>
-                                    <h4>Current Showtimes</h4>
-                                    {showtimes.length === 0 ? <p style={{ color: '#aaa' }}>No showtimes scheduled.</p> : (
-                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                            <tbody>
-                                                {showtimes.map(st => (
-                                                    <tr key={st.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                                        <td style={{ padding: '10px' }}>{new Date(st.show_date).toLocaleDateString()}</td>
-                                                        <td style={{ padding: '10px' }}>{st.show_time.substring(0, 5)}</td>
-                                                        <td style={{ padding: '10px' }}>${st.price}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                    <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase' }}>Genre</label>
+                                    <select name="genre" value={formData.genre} onChange={handleChange} required
+                                        style={{ width: '100%', padding: '12px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 'var(--radius-sm)', marginTop: '5px' }}>
+                                        <option value="" disabled>Select</option>
+                                        {['Action', 'Comedy', 'Drama', 'Sci-Fi', 'Horror', 'Romance', 'Thriller', 'Animation'].map(g => (
+                                            <option key={g} value={g} style={{ color: '#000' }}>{g}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase' }}>Duration (min)</label>
+                                    <input name="duration_min" type="number" placeholder="120" value={formData.duration_min} onChange={handleChange}
+                                        style={{ width: '100%', padding: '12px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 'var(--radius-sm)', marginTop: '5px' }} />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase' }}>Description</label>
+                                <textarea name="description" placeholder="A brief odyssey..." value={formData.description} onChange={handleChange}
+                                    style={{ width: '100%', padding: '12px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 'var(--radius-sm)', marginTop: '5px', minHeight: '120px', resize: 'vertical' }} />
+                            </div>
+
+                            <div>
+                                <label style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', fontWeight: '800', letterSpacing: '1px', textTransform: 'uppercase' }}>Poster Image</label>
+                                <div style={{ display: 'flex', gap: '15px', marginTop: '5px', alignItems: 'center' }}>
+                                    <div style={{ flex: 1, position: 'relative' }}>
+                                        <input
+                                            type="file"
+                                            id="image-file"
+                                            style={{ display: 'none' }}
+                                            onChange={async (e) => {
+                                                const file = e.target.files[0];
+                                                if (!file) return;
+                                                const formDataObj = new FormData();
+                                                formDataObj.append('image', file);
+                                                try {
+                                                    const res = await axios.post(`${API_URL}/api/upload`, formDataObj, {
+                                                        headers: { 'Content-Type': 'multipart/form-data' }
+                                                    });
+                                                    setFormData(prev => ({ ...prev, poster_url: res.data }));
+                                                } catch (err) { alert('Upload failed'); }
+                                            }}
+                                        />
+                                        <label htmlFor="image-file" className="btn btn-secondary" style={{ width: '100%', padding: '10px', fontSize: '0.8rem', cursor: 'pointer' }}>
+                                            Choose File
+                                        </label>
+                                    </div>
+                                    {formData.poster_url && (
+                                        <img
+                                            src={formData.poster_url.startsWith('http') ? formData.poster_url : `${API_URL}${formData.poster_url}`}
+                                            alt="Preview"
+                                            style={{ width: '60px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--glass-border-bright)' }}
+                                        />
                                     )}
                                 </div>
                             </div>
+
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '1.5rem' }}>
+                                <button type="submit" className="btn" style={{ flex: 2 }}>{editingId ? 'Update Movie' : 'Save Movie'}</button>
+                                {editingId && (
+                                    <button type="button" className="btn btn-secondary" style={{ flex: 1 }}
+                                        onClick={() => { setEditingId(null); setFormData({ title: '', genre: '', description: '', duration_min: '', poster_url: '', release_date: '', end_date: '' }); }}>
+                                        Cancel
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
+
+                    <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+                        <div style={{ padding: '2rem', borderBottom: '1px solid var(--glass-border)' }}>
+                            <h3 style={{ margin: 0 }}>Active Movie Library</h3>
                         </div>
-                    )}
-
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }}>
-                        <div className="glass-card">
-                            <h3 style={{ marginBottom: '1.5rem', color: 'var(--color-primary)' }}>{editingId ? 'Edit Movie' : 'Add New Movie'}</h3>
-                            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                <input name="title" placeholder="Title" value={formData.title} onChange={handleChange} required />
-                                <input name="genre" placeholder="Genre" value={formData.genre} onChange={handleChange} />
-                                <textarea name="description" placeholder="Description" value={formData.description} onChange={handleChange} style={{ resize: 'vertical', minHeight: '100px' }} />
-                                <input name="duration_min" type="number" placeholder="Duration (min)" value={formData.duration_min} onChange={handleChange} />
-
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                    <input
-                                        type="file"
-                                        id="image-file"
-                                        onChange={async (e) => {
-                                            const file = e.target.files[0];
-                                            if (!file) return;
-                                            const formDataObj = new FormData();
-                                            formDataObj.append('image', file);
-                                            try {
-                                                const res = await axios.post(`${API_URL}/api/upload`, formDataObj, {
-                                                    headers: { 'Content-Type': 'multipart/form-data' }
-                                                });
-                                                setFormData(prev => ({ ...prev, poster_url: `${API_URL}${res.data}` }));
-                                                alert('Image Uploaded!');
-                                            } catch (err) {
-                                                console.error(err);
-                                                alert('Upload failed');
-                                            }
-                                        }}
-                                        style={{ flex: 1, padding: '10px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: 'none', borderRadius: '5px' }}
-                                    />
-                                    {formData.poster_url && <img src={formData.poster_url} alt="Preview" style={{ width: '50px', height: '75px', objectFit: 'cover' }} />}
-                                </div>
-                                <input name="poster_url" placeholder="Poster URL (or upload above)" value={formData.poster_url} onChange={handleChange} />
-                                <input name="release_date" type="date" placeholder="Release Date" value={formData.release_date} onChange={handleChange} />
-
-                                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                                    <button type="submit" className="btn" style={{ flex: 1 }}>{editingId ? 'Update' : 'Create'}</button>
-                                    {editingId && <button type="button" className="btn btn-danger" onClick={() => { setEditingId(null); setFormData({ title: '', genre: '', description: '', duration_min: '', poster_url: '', release_date: '' }); }} style={{ flex: 1 }}>Cancel</button>}
-                                </div>
-                            </form>
-                        </div>
-
-                        <div className="glass-card">
-                            <h3 style={{ marginBottom: '1.5rem' }}>Existing Movies</h3>
-                            <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', color: '#ddd' }}>
-                                    <thead>
-                                        <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left' }}>
-                                            <th style={{ padding: '10px' }}>Title</th>
-                                            <th style={{ padding: '10px' }}>Genre</th>
-                                            <th style={{ padding: '10px', textAlign: 'right' }}>Actions</th>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0 }}>
+                                <thead>
+                                    <tr style={{ background: 'rgba(255,255,255,0.02)' }}>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'left', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Film</th>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'left', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Genre</th>
+                                        <th style={{ padding: '1.2rem 2rem', textAlign: 'right', color: 'var(--color-text-muted)', fontSize: '0.8rem', textTransform: 'uppercase', fontWeight: 800 }}>Management</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {movies.map(m => (
+                                        <tr key={m.id} style={{ transition: 'var(--transition-smooth)' }} className="table-row-hover">
+                                            <td style={{ padding: '1.2rem 2rem' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                                    <img
+                                                        src={m.poster_url?.startsWith('http') ? m.poster_url : `${API_URL}${m.poster_url}`}
+                                                        alt={m.title}
+                                                        style={{ width: '40px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
+                                                    />
+                                                    <span style={{ fontWeight: 'bold' }}>{m.title}</span>
+                                                </div>
+                                            </td>
+                                            <td style={{ padding: '1.2rem 2rem' }}>
+                                                <span style={{ opacity: 0.7 }}>{m.genre}</span>
+                                            </td>
+                                            <td style={{ padding: '1.2rem 2rem', textAlign: 'right' }}>
+                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                                    <button onClick={() => openShowtimeManager(m)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.75rem', color: 'var(--color-primary)', borderColor: 'var(--color-primary-glow)' }}>Schedule</button>
+                                                    <button onClick={() => handleEdit(m)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.75rem' }}>Edit</button>
+                                                    <button onClick={() => handleDelete(m.id)} className="btn btn-secondary" style={{ padding: '6px 12px', fontSize: '0.75rem', color: '#ff3d71', borderColor: 'rgba(255,61,113,0.2)' }}>Delete</button>
+                                                </div>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        {movies.map(m => (
-                                            <tr key={m.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                                <td style={{ padding: '15px 10px' }}>{m.title}</td>
-                                                <td style={{ padding: '15px 10px', color: '#aaa' }}>{m.genre}</td>
-                                                <td style={{ padding: '15px 10px', textAlign: 'right' }}>
-                                                    <button onClick={() => openShowtimeManager(m)} className="btn" style={{ padding: '5px 10px', fontSize: '0.8rem', marginRight: '5px', background: 'var(--color-primary)', color: '#000' }}>Schedule</button>
-                                                    <button onClick={() => handleEdit(m)} className="btn btn-secondary" style={{ padding: '5px 10px', fontSize: '0.8rem', marginRight: '5px' }}>Edit</button>
-                                                    <button onClick={() => handleDelete(m.id)} className="btn btn-danger" style={{ padding: '5px 10px', fontSize: '0.8rem' }}>Delete</button>
-                                                </td>
-                                            </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Showtime Modal Redesign */}
+            {showtimeModalOpen && selectedMovieForShowtime && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    background: 'rgba(0,0,0,0.9)', backdropFilter: 'blur(10px)', zIndex: 2000,
+                    display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '2rem'
+                }}>
+                    <div className="glass-card" style={{ width: '100%', maxWidth: '900px', maxHeight: '90vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', padding: 0 }}>
+                        <div style={{ padding: '2rem', borderBottom: '1px solid var(--glass-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                                <h3 style={{ margin: 0 }}>Manage Showtimes</h3>
+                                <p style={{ color: 'var(--color-primary)', fontSize: '0.9rem', fontWeight: 'bold', margin: '5px 0 0' }}>{selectedMovieForShowtime.title}</p>
+                            </div>
+                            <button onClick={() => setShowtimeModalOpen(false)} style={{ background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', width: 40, height: 40, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>&times;</button>
+                        </div>
+
+                        <div style={{ overflowY: 'auto', padding: '2rem', display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: '3rem' }}>
+                            <div>
+                                <h4 style={{ marginBottom: '1.5rem', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--color-text-muted)' }}>Create Bulk Schedule</h4>
+                                <form onSubmit={handleShowtimeSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                        <div>
+                                            <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 'bold' }}>START DATE</label>
+                                            <input type="date" required min={new Date().toISOString().split('T')[0]} value={showtimeForm.start_date} onChange={e => setShowtimeForm({ ...showtimeForm, start_date: e.target.value })}
+                                                style={{ width: '100%', padding: '10px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 'var(--radius-sm)', marginTop: '5px' }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 'bold' }}>END DATE</label>
+                                            <input type="date" required min={showtimeForm.start_date || new Date().toISOString().split('T')[0]} value={showtimeForm.end_date} onChange={e => setShowtimeForm({ ...showtimeForm, end_date: e.target.value })}
+                                                style={{ width: '100%', padding: '10px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 'var(--radius-sm)', marginTop: '5px' }} />
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                        <div>
+                                            <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 'bold' }}>TIME</label>
+                                            <input type="time" required value={showtimeForm.time} onChange={e => setShowtimeForm({ ...showtimeForm, time: e.target.value })}
+                                                style={{ width: '100%', padding: '10px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 'var(--radius-sm)', marginTop: '5px' }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.7rem', color: 'var(--color-text-muted)', fontWeight: 'bold' }}>PRICE ($)</label>
+                                            <input type="number" step="0.01" required value={showtimeForm.price} onChange={e => setShowtimeForm({ ...showtimeForm, price: e.target.value })}
+                                                style={{ width: '100%', padding: '10px', background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', color: '#fff', borderRadius: 'var(--radius-sm)', marginTop: '5px' }} />
+                                        </div>
+                                    </div>
+                                    <button type="submit" className="btn" style={{ marginTop: '10px' }}>Generate Schedule</button>
+                                </form>
+                                <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'rgba(245, 197, 24, 0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(245, 197, 24, 0.1)' }}>
+                                    <p style={{ fontSize: '0.8rem', color: 'var(--color-primary)', margin: 0, lineHeight: '1.6' }}>
+                                        <strong>Pro Tip:</strong> Setting a date range will create a showtime for every day in that interval at the specified time.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 style={{ marginBottom: '1.5rem', textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px', color: 'var(--color-text-muted)' }}>Scheduled Sessions</h4>
+                                {showtimes.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '4rem 2rem', background: 'rgba(255,255,255,0.02)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--glass-border)' }}>
+                                        <p style={{ color: 'var(--color-text-muted)', margin: 0 }}>No sessions found for this title.</p>
+                                    </div>
+                                ) : (
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '15px' }}>
+                                        {showtimes.map(st => (
+                                            <div key={st.id} style={{
+                                                padding: '12px',
+                                                background: 'var(--glass-bg)',
+                                                border: '1px solid var(--glass-border)',
+                                                borderRadius: 'var(--radius-md)',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                gap: '5px'
+                                            }}>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: 'var(--color-text-muted)' }}>
+                                                    {new Date(st.show_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                                </div>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{st.show_time.substring(0, 5)}</div>
+                                                <div style={{ fontSize: '0.8rem', color: 'var(--color-primary)' }}>${st.price}</div>
+                                            </div>
                                         ))}
-                                    </tbody>
-                                </table>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
